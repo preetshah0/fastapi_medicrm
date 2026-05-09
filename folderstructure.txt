@@ -1,0 +1,29 @@
+fastapi-crm/
+├── app/
+│   ├── api/            # API routes (leads, customers, deals)
+│   ├── core/           # Config, security, and global constants
+│   ├── crud/           # Database logic (Create, Read, Update, Delete)
+│   ├── models/         # SQLAlchemy/SQLModel database classes
+│   ├── schemas/        # Pydantic models for data validation
+│   ├── db/             # Database connection and session management
+│   └── main.py         # Entry point of the application
+├── alembic/            # Database migrations folder
+├── .env                # Environment variables (DB_URL, SECRET_KEY)
+├── requirements.txt    # Project dependencies
+└── alembic.ini
+
+
+
+fastapi-crm/
+├── .venv/              <-- THE PYTHON FOLDER (Executable & Libraries)
+├── .github/            # CI/CD workflows
+├── app/                # Your source code
+│   ├── api/
+│   ├── core/
+│   └── ...
+├── alembic/
+├── .env
+├── .python-version     # Created by uv to pin the Python version (e.g., 3.12)
+├── pyproject.toml      # Dependency definitions (The "composer.json")
+├── uv.lock             # Exact versions (The "composer.lock")
+└── alembic.ini
