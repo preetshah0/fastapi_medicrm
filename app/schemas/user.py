@@ -1,0 +1,35 @@
+from pydantic import BaseModel, EmailStr, ConfigDict
+from datetime import datetime
+from typing import Optional
+
+class UserBase(BaseModel):
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    specialization: Optional[str] = None
+    role: Optional[str] = "staff"
+    status: Optional[bool] = True
+    description: Optional[str] = None
+    profile_photo: Optional[str] = None
+
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    phone: Optional[str] = None
+    specialization: Optional[str] = None
+    role: Optional[str] = None
+    status: Optional[bool] = None
+    description: Optional[str] = None
+    profile_photo: Optional[str] = None
+
+class UserResponse(UserBase):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
