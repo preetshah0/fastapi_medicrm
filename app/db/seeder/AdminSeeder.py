@@ -20,7 +20,7 @@ def seed_admin():
             password = pwd_context.hash(password[:72]),
             role="admin",
             specialization="Administration",
-            status=True
+            status="active"
         )
         db.add(admin)
         db.commit()

@@ -6,7 +6,9 @@ from alembic import context
 # --- ADD YOUR IMPORTS HERE ---
 from app.db.database import Base
 from app.model.User import User
-# from app.model.Organization import Organization
+from app.model.Organization import Organization
+from app.model.UserRefreshToken import UserRefreshToken
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
