@@ -1,5 +1,7 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
+from app.Enum.UserRole import UserRole
+from app.Enum.UserStatus import UserStatus
 from typing import Optional
 
 class UserBase(BaseModel):
@@ -7,8 +9,8 @@ class UserBase(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     specialization: Optional[str] = None
-    role: Optional[str] = "staff"
-    status: Optional[bool] = True
+    role: UserRole = UserRole.STAFF
+    status: UserStatus = UserStatus.ACTIVE
     description: Optional[str] = None
     profile_photo: Optional[str] = None
 

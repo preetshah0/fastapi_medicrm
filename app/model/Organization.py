@@ -1,9 +1,14 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 from sqlalchemy import String, DateTime, Float, Text, Boolean, text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
-from app.model.User import User
+from app.Enum.OrganizationPlanType import OrganizationPlanType
+from app.Enum.OrganizationStatus import OrganizationStatus
+
+if TYPE_CHECKING:
+    from app.model.User import User
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -13,33 +18,23 @@ class Organization(Base):
     )
 
     # --- Info ---
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
-    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    organization_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    organization_email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    # phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     address: Mapped[str | None] = mapped_column(Text(), nullable=True)
     profile_photo: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    ref: Mapped[str | None] = mapped_column(String(8), nullable=True)    # like Laravel's ref
 
     # --- Plan ---
-    plan_id: Mapped[str | None] = mapped_column(
-        String(36),
-        ForeignKey("plans.id", ondelete="SET NULL"),
-        nullable=True
-    )
-    plan_type: Mapped[str] = mapped_column(
-        String(50), nullable=False, server_default=text("'monthly'")
-    )
-    annual_discount: Mapped[int] = mapped_column(
-        nullable=False, server_default=text("0")
-    )
+    # plan_id: Mapped[str | None] = mapped_column(
+    #     String(36),
+    #     ForeignKey("plans.id", ondelete="SET NULL"),
+    #     nullable=True
+    # )
+    # plan_type: Mapped[str] = mapped_column(String(255), nullable = False, server_default=OrganizationPlanType.MONTHLY.value)
+    # annual_discount: Mapped[float] = mapped_column(Float, default =0.0, nullable=False)
 
     # --- Status ---
-    status: Mapped[int] = mapped_column(
-        tinyint,                   
-        server_default=text("1"),        # 1 = active 
-        
-        nullable=False
-    )
+    status: Mapped[str] = mapped_column(String(255), nullable = False, server_default=OrganizationStatus.ACTIVE.value)
     # --- Timestamps & Soft Delete ---
     created_at: Mapped[datetime] = mapped_column(
         server_default=text("CURRENT_TIMESTAMP")

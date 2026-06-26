@@ -5,21 +5,23 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.db.database import session
 from app.model.User import User
+from app.Enum.UserStatus import UserStatus
+from app.Enum.UserRole import UserRole
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AdminAuth(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
         form = await request.form()
-        email = form.get("username")
+        email = form.get("email")
         password = form.get("password")
 
         db: Session = session()
         try:
             user = db.query(User).filter(
                 User.email == email,
-                User.role == "admin",
-                User.status == True
+                User.role == UserRole.ADMIN.value,
+                User.status == UserStatus.ACTIVE.value
             ).first()
 
             if not user:

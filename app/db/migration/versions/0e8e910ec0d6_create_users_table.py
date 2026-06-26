@@ -31,7 +31,7 @@ def upgrade():
         sa.Column('phone', sa.String(20), nullable=True),
         sa.Column('specialization', sa.String(255), nullable=True),
         sa.Column('role', sa.String(50), server_default='staff', nullable=False),
-        sa.Column('status', sa.Boolean(), server_default='1'),
+        sa.Column('status', sa.String(255), server_default='active'),
         sa.Column('profile_photo', sa.String(255), nullable=True),
         sa.Column('organization_id', sa.String(36), nullable=True),
         sa.ForeignKeyConstraint(['organization_id'], ['organizations.id'], ondelete='SET NULL'),
