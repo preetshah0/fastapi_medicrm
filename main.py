@@ -6,6 +6,7 @@ from app.model import User                  # triggers model registration
 from app.auth.routes.admin_api import router as admin_router
 from app.auth.routes.role_api import router as role_router
 from app.owner.routes.team_api import router as team_router
+from app.admin.routes.organization_api import router as organization_router
 # from app.admin.auth import AdminAuth
 # from app.admin.views.user_view import UserAdmin
 # from app.admin.views.organization_view import OrganizationAdmin
@@ -21,6 +22,7 @@ app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 app.include_router(admin_router)
 app.include_router(role_router)
 app.include_router(team_router)
+app.include_router(organization_router)
 
 
 @app.get('/')

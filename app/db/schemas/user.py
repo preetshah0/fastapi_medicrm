@@ -1,15 +1,15 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from app.Enum.UserRole import UserRole
 from app.Enum.UserStatus import UserStatus
 from typing import Optional
+from app.db.schemas.role import RoleResponse
 
 class UserBase(BaseModel):
     name: str
     email: str
     phone: Optional[str] = None
     specialization: Optional[str] = None
-    role: UserRole = UserRole.STAFF
+    role: str = "staff"
     status: UserStatus = UserStatus.ACTIVE
     description: Optional[str] = None
     profile_photo: Optional[str] = None
@@ -24,7 +24,7 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = None
     specialization: Optional[str] = None
     role: Optional[str] = None
-    status: Optional[bool] = None
+    status: Optional[UserStatus] = None
     description: Optional[str] = None
     profile_photo: Optional[str] = None
 
@@ -33,5 +33,6 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
+    roles: list[RoleResponse] = []
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)

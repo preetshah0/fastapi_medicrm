@@ -3,9 +3,10 @@ from app.model.Roles import Roles as Role, Permissions
 from app.db.schemas.role import RoleCreate, RoleUpdate, PermissionCreate, PermissionUpdate, PermissionResponse
 from app.utils.ApiResponse import success_response, error_response, not_found_response
 
+import random
+
 def generate_slug(title: str) -> str:
     return title.lower().replace(" ", "-")
-
 
 def create_role(db: Session, role: RoleCreate) -> Role:
     slug = role.slug if role.slug else generate_slug(role.name)
@@ -29,7 +30,7 @@ def get_role_by_slug(db: Session, role_slug: str) -> Role:
 
 
 def update_role(db: Session, role_slug: str, role_update: RoleUpdate) -> Role:
-    # db_role = get_role_by_slug(db, role_slug)
+    db_role = get_role_by_slug(db, role_slug)
     # if not db_role:
     #     return error_response("Role not found", data="")
 

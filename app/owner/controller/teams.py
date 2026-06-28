@@ -17,9 +17,14 @@ def create_user(db: Session, user: UserCreate, organization_id: str):
         specialization=user.specialization,
         description=user.description,
         profile_photo=user.profile_photo,
-        status=user.status,
+        status=user.status.value,
         organization_id=organization_id
     )
+    
+    db_role = db.query(Role).filter(Role.name == user.role).first()
+    if db_role:
+        db_user.roles.append(db_role)
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -45,7 +50,7 @@ def update_user(db: Session, user_id: str, user_update: UserUpdate) -> User:
     if not db_user:
         return not_found_response("User not found", data="")
 
-    update_data = user_update.dict(exclude_unset=True)
+    update_data = user_update.model_dump(exclude_unset=True, mode='json')
     if "password" in update_data:
         update_data["password"] = hash_password(update_data["password"])
     for key, value in update_data.items():
