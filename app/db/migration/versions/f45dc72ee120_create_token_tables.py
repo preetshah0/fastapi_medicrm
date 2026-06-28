@@ -25,7 +25,6 @@ def upgrade() -> None:
         sa.Column('user_id', sa.String(36), nullable=False),
         sa.Column('token', sa.String(512), nullable=False),
         sa.Column('expires_at', sa.DateTime(), nullable=True),
-        sa.Column('revoked_at', sa.DateTime(), nullable=True),
         sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('updated_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('deleted_at', sa.DateTime(), nullable=True),

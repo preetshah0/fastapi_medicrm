@@ -8,8 +8,6 @@ class UserRefreshTokenBase(BaseModel):
     user_id: str
     token: str
     expires_at: Optional[datetime] = None
-    revoked_at: Optional[datetime] = None
-
 
 class UserRefreshTokenCreate(UserRefreshTokenBase):
     pass
@@ -18,8 +16,6 @@ class UserRefreshTokenCreate(UserRefreshTokenBase):
 class UserRefreshTokenUpdate(BaseModel):
     token: Optional[str] = None
     expires_at: Optional[datetime] = None
-    revoked_at: Optional[datetime] = None
-
 
 class UserRefreshTokenResponse(UserRefreshTokenBase):
     id: str

@@ -22,7 +22,6 @@ def _get_active_refresh_token(db: Session, token: str) -> UserRefreshToken | Non
         db.query(UserRefreshToken)
         .filter(
             UserRefreshToken.token == token,
-            UserRefreshToken.revoked_at.is_(None),
             UserRefreshToken.deleted_at.is_(None),
             (UserRefreshToken.expires_at.is_(None)) | (UserRefreshToken.expires_at > datetime.utcnow()),
         )
@@ -78,14 +77,24 @@ def refresh_token(db: Session, refresh_token_str: str):
 
     user_id = None
     try:
+        from jose import jwt
         secret_key = settings.REFRESH_TOKEN_SECRET_KEY or settings.SECRET_KEY
         payload = jwt.decode(refresh_token_str, secret_key, algorithms=["HS256"])
         user_id = payload.get("sub")
     except Exception:
-        return unauthorized_response("Invalid refresh token", data = "")
+        return unauthorized_response("Invalid or expired refresh token", data = "")
 
     if not user_id:
         return unauthorized_response("Invalid refresh token", data = "")
+
+    stored_token = db.query(UserRefreshToken).filter(UserRefreshToken.token == refresh_token_str).first()
+    if not stored_token or stored_token.deleted_at is not None:
+        return unauthorized_response("Invalid refresh token", data = "")
+
+    if stored_token.expires_at and stored_token.expires_at <= datetime.utcnow():
+        db.delete(stored_token)
+        db.commit()
+        return unauthorized_response("Refresh token has expired", data = "")
 
     user = get_user_by_id(db, user_id)
     if not user:
@@ -94,16 +103,11 @@ def refresh_token(db: Session, refresh_token_str: str):
     if user.role != UserRole.ADMIN.value:
         return unauthorized_response("User is not allowed to refresh admin tokens", data = "")
 
-    stored_token = _get_active_refresh_token(db, refresh_token_str)
-    if not stored_token or stored_token.user_id != user.id:
-        return unauthorized_response("Refresh token is no longer valid", data = "")
-
     access_token = create_access_token({"sub": user.id})
     new_refresh_token = create_refresh_token({"sub": user.id})
 
     stored_token.token = new_refresh_token
     stored_token.expires_at = datetime.utcnow() + timedelta(days=7)
-    stored_token.revoked_at = None
     db.commit()
 
     return success_response(
@@ -117,34 +121,15 @@ def refresh_token(db: Session, refresh_token_str: str):
 
 
 def logout(db: Session, refresh_token_str: str):
-    """
-    Admin logout
-    Args:
-        db (Session): database session
-        refresh_token_str (str): refresh token
-    Returns:
-        JSONResponse: logout response
-    """
+   
     if not refresh_token_str:
         return error_response("Refresh token is required", data = "")
 
-    user_id = None
-    try:
-        from jose import jwt
-        secret_key = settings.REFRESH_TOKEN_SECRET_KEY or settings.SECRET_KEY
-        payload = jwt.decode(refresh_token_str, secret_key, algorithms=["HS256"])
-        user_id = payload.get("sub")
-    except Exception:
-        return unauthorized_response("Invalid refresh token", data = "")
+    stored_token = db.query(UserRefreshToken).filter(UserRefreshToken.token == refresh_token_str).first()
+    if not stored_token:
+        return error_response("Invalid refresh token", data = "")
 
-    user = get_user_by_id(db, user_id)
-    if not user:
-        return not_found_response("User not found", data = "")
-
-    stored_token = _get_active_refresh_token(db, refresh_token_str)
-    if stored_token:
-        stored_token.revoked_at = datetime.utcnow()
-
+    db.delete(stored_token)
     db.commit()
 
     return success_response("Logout successful", data = "")
