@@ -1,9 +1,11 @@
-﻿from fastapi import FastAPI
+from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 from app.core.config import settings
 from app.db.database import engine, init_db
 from app.model import User                  # triggers model registration
 from app.auth.routes.admin_api import router as admin_router
+from app.auth.routes.role_api import router as role_router
+from app.owner.routes.team_api import router as team_router
 # from app.admin.auth import AdminAuth
 # from app.admin.views.user_view import UserAdmin
 # from app.admin.views.organization_view import OrganizationAdmin
@@ -17,6 +19,8 @@ app = FastAPI(title=settings.APP_NAME)
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
 app.include_router(admin_router)
+app.include_router(role_router)
+app.include_router(team_router)
 
 
 @app.get('/')

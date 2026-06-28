@@ -26,7 +26,7 @@ class User(Base):
     
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     specialization: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    role: Mapped[str] = mapped_column(String(255),server_default=UserRole.STAFF.value,nullable=False)
+    role: Mapped[str] = mapped_column(String(255),nullable=False)
     status: Mapped[str] = mapped_column(String(255),nullable = False,server_default=UserStatus.ACTIVE.value)
     
     description: Mapped[str | None] = mapped_column(String(200), nullable=True)
@@ -50,4 +50,10 @@ class User(Base):
         "UserRefreshToken",
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+
+    roles: Mapped[list["Roles"]] = relationship(
+        "Roles",
+        secondary="user_roles",
+        back_populates="users",
     )

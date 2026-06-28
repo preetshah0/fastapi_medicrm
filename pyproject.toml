@@ -10,6 +10,7 @@ dependencies = [
     "cryptography>=48.0.0",
     "email-validator>=2.3.0",
     "fastapi>=0.136.1",
+    "google-antigravity>=0.1.5",
     "itsdangerous>=2.2.0",
     "mysqlclient>=2.2.8",
     "numpy>=2.2.6",

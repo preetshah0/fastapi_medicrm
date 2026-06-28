@@ -8,7 +8,8 @@ from app.db.database import Base
 from app.model.User import User
 from app.model.Organization import Organization
 from app.model.UserRefreshToken import UserRefreshToken
-
+from app.model.Roles import Roles
+from app.model.Roles import Permissions
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
