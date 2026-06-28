@@ -6,9 +6,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
 from app.Enum.OrganizationPlanType import OrganizationPlanType
 from app.Enum.OrganizationStatus import OrganizationStatus
+from app.model.Roles import user_roles
 
 if TYPE_CHECKING:
     from app.model.User import User
+    from app.model.Roles import Roles
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -20,6 +22,7 @@ class Organization(Base):
     # --- Info ---
     organization_name: Mapped[str] = mapped_column(String(255), nullable=False)
     organization_email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    ref: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     # phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     address: Mapped[str | None] = mapped_column(Text(), nullable=True)
     profile_photo: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -70,6 +73,14 @@ class Organization(Base):
         foreign_keys="User.organization_id",
         viewonly=True,
         uselist=False
+    )
+
+    roles: Mapped[list["Roles"]] = relationship(
+        "Roles",
+        secondary="join(User, user_roles, User.id == user_roles.c.user_id)",
+        primaryjoin="User.organization_id == Organization.id",
+        secondaryjoin="Roles.id == user_roles.c.role_id",
+        viewonly=True,
     )
 
     # --- hasMany Branches ---

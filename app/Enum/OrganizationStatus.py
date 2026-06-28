@@ -1,13 +1,13 @@
 from enum import Enum
 
-class OrganizationStatus(str, Enum):
+class OrganizationStatus(Enum):
     ACTIVE = "active"
-    INACTIVE = "inactive"
-
+    SUSPENDED = "suspended"
+    
     @property
     def label(self) -> str:
         labels = {
             self.ACTIVE: "Active",
-            self.INACTIVE: "Inactive",
+            self.SUSPENDED: "Suspended",
         }
         return  labels.get(self)

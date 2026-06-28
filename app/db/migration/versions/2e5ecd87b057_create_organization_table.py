@@ -25,6 +25,7 @@ def upgrade():
         sa.Column('id', sa.String(36), primary_key=True),
         sa.Column('organization_name', sa.String(255), nullable=False),
         sa.Column('organization_email', sa.String(255), nullable=False),
+        sa.Column('ref', sa.String(255), nullable=False),
         # sa.Column('organization_password', sa.String(255), nullable=False, server_default='password'),
         # sa.Column('annual_discount', sa.Float(), nullable=True),
         sa.Column('address', sa.Text(), nullable=True),
