@@ -10,6 +10,7 @@ from app.model.Organization import Organization
 from app.model.UserRefreshToken import UserRefreshToken
 from app.model.Roles import Roles
 from app.model.Roles import Permissions
+from app.model.Branch import Branch, BranchUser
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
