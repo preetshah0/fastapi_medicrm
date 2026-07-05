@@ -29,15 +29,15 @@ class MedicalReps(Base):
         ForeignKey("branches.id", ondelete="CASCADE"),
         nullable=False
     )
-    reps_name: Mapped[str] = mapped_column(
+    company_name: Mapped[str] = mapped_column(
         String(255),
         nullable=True
     )
-    reps_email: Mapped[str] = mapped_column(
+    company_email: Mapped[str] = mapped_column(
         String(255),
         nullable=True
     )
-    reps_phone: Mapped[str] = mapped_column(
+    company_phone: Mapped[str] = mapped_column(
         String(255),
         nullable=True
     )
@@ -45,11 +45,7 @@ class MedicalReps(Base):
         String(255),
         nullable=True
     )
-    reps_profile_photo: Mapped[str] = mapped_column(
-        String(255),
-        nullable=True
-    )
-    company_name: Mapped[str] = mapped_column(
+    profile_photo: Mapped[str] = mapped_column(
         String(255),
         nullable=True
     )
@@ -92,13 +88,15 @@ class MedicalRepVisit(Base):
         nullable=False
     )
 
+    reps_name: Mapped[str] = mapped_column(String(255), nullable=False)
+
     visited_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     notes: Mapped[str] = mapped_column(String(255), nullable=True)
 
     visit_purpose: Mapped[str] = mapped_column(String(255), nullable=False, server_default=MRVisitPurpose.Other.value)
 
-    product: Mapped[str] = mapped_column(String(255), nullable=True)
+    Product: Mapped[str] = mapped_column(String(255), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         server_default=text("CURRENT_TIMESTAMP")

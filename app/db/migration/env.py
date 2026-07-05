@@ -12,6 +12,7 @@ from app.model.Roles import Roles
 from app.model.Roles import Permissions
 from app.model.Branch import Branch, BranchUser
 from app.model.medical_reps import MedicalReps, MedicalRepVisit
+from app.model.suppliers import Supplier, SupplierVisit
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

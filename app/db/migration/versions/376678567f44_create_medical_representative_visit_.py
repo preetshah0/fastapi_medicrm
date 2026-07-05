@@ -24,6 +24,7 @@ def upgrade() -> None:
     op.create_table('mr_visits',
     sa.Column('id',sa.String(36),primary_key=True,default=lambda:str(uuid.uuid4())),
     sa.Column('reps_id',sa.String(36),sa.ForeignKey('medical_representatives.id',ondelete='CASCADE'),nullable=False),
+    sa.Column('reps_name', sa.String(255), nullable=False),
     sa.Column('visited_date',sa.DateTime,nullable=False),
     sa.Column('notes',sa.String(255),nullable=True),
     sa.Column('visit_purpose',sa.String(255),nullable=True),
@@ -36,4 +37,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    pass
+    op.drop_table('mr_visits')

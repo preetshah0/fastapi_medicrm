@@ -25,10 +25,13 @@ router = APIRouter(prefix="/owner/medical-reps", tags=["medical-reps"])
 
 @router.post("/create/{branch_id}", response_model=APIResponse[MedicalRepsResponse])
 def create_medical_rep_route(branch_id: str, payload: MedicalRepsCreate, db: Session = Depends(get_db)):
-    db_email = db.query(MedicalReps).filter(MedicalReps.reps_email == payload.reps_email).first()
+    db_email = db.query(MedicalReps).filter(
+        MedicalReps.company_email == payload.company_email,
+        MedicalReps.branch_id == branch_id
+    ).first()
 
     if db_email:
-        return error_response("Medical Representative already exists", data="")
+        return error_response("Medical Representative already existed for this branch", data="")
     
     result = create_medical_representatives(db=db, branch_id=branch_id, medical_rep_data=payload)
     if not result:
@@ -38,10 +41,18 @@ def create_medical_rep_route(branch_id: str, payload: MedicalRepsCreate, db: Ses
 
 @router.put("/{medical_rep_id}", response_model=APIResponse[MedicalRepsResponse])
 def update_medical_rep_route(medical_rep_id: str, payload: MedicalRepsUpdate, db: Session = Depends(get_db)):
-    db_email = db.query(MedicalReps).filter(MedicalReps.reps_email == payload.reps_email, MedicalReps.id != medical_rep_id).first()
+    existing_rep = db.query(MedicalReps).filter(MedicalReps.id == medical_rep_id).first()
+    if not existing_rep:
+        return not_found_response("Medical Representative not found", data="")
 
-    if db_email:
-        return error_response("Medical Representative already exists", data="")
+    if payload.company_email:
+        db_email = db.query(MedicalReps).filter(
+            MedicalReps.company_email == payload.company_email,
+            MedicalReps.branch_id == existing_rep.branch_id,
+            MedicalReps.id != medical_rep_id
+        ).first()
+        if db_email:
+            return error_response("Medical Representative already existed for this branch", data="")
 
     result = update_medical_representatives(db=db, medical_rep_id=medical_rep_id, medical_rep_data=payload)
     if not result:
