@@ -83,12 +83,11 @@ class Organization(Base):
         viewonly=True,
     )
 
-    # --- hasMany Branches ---
-    # branches: Mapped[list["Branch"]] = relationship(
-    #     "Branch",
-    #     back_populates="organization",
-    #     cascade="all, delete-orphan"
-    # )
+    branches: Mapped[list["Branch"]] = relationship(
+        "Branch",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
 
     # # --- hasMany Patients ---
     # patients: Mapped[list["Patient"]] = relationship(

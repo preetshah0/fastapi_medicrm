@@ -45,11 +45,7 @@ def get_users_by_organization(db: Session, organization_id: str, skip: int = 0, 
     )
 
 
-def update_user(db: Session, user_id: str, user_update: UserUpdate) -> User:
-    db_user = get_user(db, user_id)
-    if not db_user:
-        return not_found_response("User not found", data="")
-
+def update_user(db: Session, db_user: User, user_update: UserUpdate) -> User:
     update_data = user_update.model_dump(exclude_unset=True, mode='json')
     if "password" in update_data:
         update_data["password"] = hash_password(update_data["password"])
@@ -61,40 +57,23 @@ def update_user(db: Session, user_id: str, user_update: UserUpdate) -> User:
     return db_user
 
 
-def delete_user(db: Session, user_id: str):
-    db_user = get_user(db, user_id)
-    if not db_user:
-        return not_found_response("User not found", data="")
+def delete_user(db: Session, db_user: User):
     db.delete(db_user)
     db.commit()
-    return success_response("User deleted successfully", data="")
+    return True
 
 
-def assign_role_to_user(db: Session, user_id: str, role_id: str):
-    """Fetch both user and role then add role to user.roles if not already assigned."""
-    db_user = get_user(db, user_id)
-    if not db_user:
-        return not_found_response("User not found", data="")
-    db_role = db.query(Role).filter(Role.id == role_id).first()
-    if not db_role:
-        return not_found_response("Role not found", data="")
-    if db_role not in db_user.roles:
-        db_user.roles.append(db_role)
+def assign_role_to_user(db: Session, user: User, role: Role):
+    if role not in user.roles:
+        user.roles.append(role)
         db.commit()
-        db.refresh(db_user)
-    return db_user
+        db.refresh(user)
+    return user
 
 
-def remove_role_from_user(db: Session, user_id: str, role_id: str):
-    """Fetch both user and role then remove role from user.roles."""
-    db_user = get_user(db, user_id)
-    if not db_user:
-        return not_found_response("User not found", data="")
-    db_role = db.query(Role).filter(Role.id == role_id).first()
-    if not db_role:
-        return not_found_response("Role not found", data="")
-    if db_role in db_user.roles:
-        db_user.roles.remove(db_role)
+def remove_role_from_user(db: Session, user: User, role: Role):
+    if role in user.roles:
+        user.roles.remove(role)
         db.commit()
-        db.refresh(db_user)
-    return db_user
+        db.refresh(user)
+    return user

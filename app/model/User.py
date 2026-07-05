@@ -9,6 +9,7 @@ from app.Enum.UserStatus import UserStatus
 
 if TYPE_CHECKING:
     from app.model.Organization import Organization
+    from app.model.Branch import BranchUser
 
 class User(Base):
     __tablename__ = "users"
@@ -56,4 +57,10 @@ class User(Base):
         "Roles",
         secondary="user_roles",
         back_populates="users",
+    )
+
+    branch_users: Mapped[list["BranchUser"]] = relationship(
+        "BranchUser",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )

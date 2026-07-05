@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.model.Organization import Organization
 from app.model.User import User
 from app.model.Roles import Roles as Role
+from app.model.Branch import Branch
 from app.db.schemas.organization import OrganizationCreate, OrganizationUpdate
 from app.Enum.OrganizationStatus import OrganizationStatus
 from app.Enum.UserStatus import UserStatus
@@ -26,8 +27,7 @@ def create_organization(db: Session, organization: OrganizationCreate, owner_rol
         profile_photo=organization.profile_photo,
     )
     db.add(db_org)
-    db.flush()
-
+  
     db_owner = User(
         name=organization.owner_name,
         email=organization.owner_email,
@@ -43,9 +43,23 @@ def create_organization(db: Session, organization: OrganizationCreate, owner_rol
 
     db_owner.roles.append(owner_role)
     db.add(db_owner)
+
+    db_branch = Branch(
+        branch_name=organization.branch_name,
+        address=organization.branch_address,
+        phone_number=organization.branch_phone,
+        branch_email=organization.branch_email,
+        opening_time=organization.opening_time,
+        closing_time=organization.closing_time,
+        city=organization.city,
+        state=organization.state,
+        organization_id=db_org.id,
+    )
+    db.add(db_branch)
     db.commit()
     db.refresh(db_org)
     db.refresh(db_owner)
+    db.refresh(db_branch)
     return db_org
 
 
