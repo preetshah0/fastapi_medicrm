@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.User import User
     from app.model.Roles import Roles
+    from app.model.medical_reps import MedicalReps
 
 
 class BranchUser(Base):
@@ -125,6 +126,12 @@ class Branch(Base):
         "BranchUser",
         back_populates="branch",
         cascade="all, delete-orphan",
+    )
+
+    medical_reps: Mapped[list["MedicalReps"]] = relationship(
+        "MedicalReps",
+        back_populates="branch",
+        cascade="all, delete-orphan"
     )
 
     

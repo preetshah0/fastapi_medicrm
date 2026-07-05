@@ -11,6 +11,8 @@ from app.model.Roles import user_roles
 if TYPE_CHECKING:
     from app.model.User import User
     from app.model.Roles import Roles
+    from app.model.Branch import Branch
+    from app.model.medical_reps import MedicalReps
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -85,6 +87,12 @@ class Organization(Base):
 
     branches: Mapped[list["Branch"]] = relationship(
         "Branch",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    medical_reps: Mapped[list["MedicalReps"]] = relationship(
+        "MedicalReps",
         back_populates="organization",
         cascade="all, delete-orphan"
     )
