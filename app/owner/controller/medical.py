@@ -11,12 +11,11 @@ def create_medical_representatives(db: Session, branch_id: str, medical_rep_data
     db_medical_rep = MedicalReps(
         branch_id=branch_id,
         organization_id=branch.organization_id,
-        reps_name=medical_rep_data.reps_name,
-        reps_email=medical_rep_data.reps_email,
-        reps_phone=medical_rep_data.reps_phone,
-        notes=medical_rep_data.notes,
-        reps_profile_photo=medical_rep_data.reps_profile_photo,
         company_name=medical_rep_data.company_name,
+        company_email=medical_rep_data.company_email,
+        company_phone=medical_rep_data.company_phone,
+        notes=medical_rep_data.notes,
+        profile_photo=medical_rep_data.profile_photo,
         city=medical_rep_data.city,
     )
     
@@ -28,10 +27,11 @@ def create_medical_representatives(db: Session, branch_id: str, medical_rep_data
 def create_mr_visit(db: Session, medical_rep_id: str, mr_visit_data: MedicalRepVisitCreate):
     db_mr_visit = MedicalRepVisit(
         reps_id=medical_rep_id,
+        reps_name=mr_visit_data.reps_name,
         visited_date=mr_visit_data.visited_date,
         notes=mr_visit_data.notes,
         visit_purpose=mr_visit_data.visit_purpose,
-        product=mr_visit_data.product,
+        Product=mr_visit_data.Product,
     )
     
     db.add(db_mr_visit)
@@ -70,9 +70,9 @@ def get_product(db: Session, medical_rep_id: str):
     if not mr or not mr.company_name:
         return None
     company_reps = db.query(MedicalReps.id).filter(MedicalReps.company_name == mr.company_name).subquery()
-    products = db.query(MedicalRepVisit.product).filter(
+    products = db.query(MedicalRepVisit.Product).filter(
         MedicalRepVisit.reps_id.in_(company_reps),
-        MedicalRepVisit.product.isnot(None)
+        MedicalRepVisit.Product.isnot(None)
     ).distinct().all()
     if not products:
         return None

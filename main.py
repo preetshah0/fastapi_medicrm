@@ -9,6 +9,7 @@ from app.owner.routes.team_api import router as team_router
 from app.admin.routes.organization_api import router as organization_router
 from app.owner.routes.branch_api import router as branch_router
 from app.owner.routes.medical_api import router as medical_reps_router
+from app.owner.routes.supplier_api import router as supplier_router
 # from app.admin.auth import AdminAuth
 # from app.admin.views.user_view import UserAdmin
 # from app.admin.views.organization_view import OrganizationAdmin
@@ -27,6 +28,7 @@ app.include_router(team_router)
 app.include_router(organization_router)
 app.include_router(branch_router)
 app.include_router(medical_reps_router)
+app.include_router(supplier_router)
 
 
 @app.get('/')
