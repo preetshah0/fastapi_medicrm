@@ -19,24 +19,3 @@ def validate_operating_hours(opening_time: time, closing_time: time):
 
     if (closed_at - opened_at) < timedelta(hours=1):
         raise ValueError("Branch must be open for at least 1 hour")
-
-def validate_lab_visit_fields(cls, values):
-    from app.Enum.LaboratoryFacilityType import LaboratoryFacilityType
-    facility_type = values.facility_type
-    
-    if facility_type != LaboratoryFacilityType.INTERNAL:
-        raise ValueError("Lab visits can currently only be created for internal laboratories.")
-        
-    required_fields = [
-        values.visited_date,
-        values.visit_time,
-        values.name,
-        values.email,
-        values.speciality,
-        values.from_facility,
-        values.notes
-    ]
-    if not all(field is not None for field in required_fields):
-        raise ValueError("All lab visit fields (visited_date, visit_time, name, email, speciality, from_facility, notes) are required for internal facility type.")
-
-    return values
