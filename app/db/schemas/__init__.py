@@ -23,4 +23,25 @@ from .role import (
     PermissionResponse,
 )
 from .branch import BaseBranch, BranchCreate, BranchUpdate, BranchResponse
+from .labs import LabBase, LabCreate, LabUpdate, LabResponse, LabVisitBase, LabVisitCreate, LabVisitResponse
+from .medical_reps import (
+    MedicalRepsBase,
+    MedicalRepsCreate,
+    MedicalRepsUpdate,
+    MedicalRepsResponse,
+    MedicalRepVisitBase,
+    MedicalRepVisitCreate,
+    MedicalRepVisitResponse,
+)
+
+from .suppliers import (
+    SupplierBase,
+    SupplierCreate,
+    SupplierUpdate,
+    SupplierResponse,
+    SupplierVisitBase,
+    SupplierVisitCreate,
+    SupplierVisitResponse,
+)
+
 from .response import APIResponse

@@ -5,5 +5,20 @@ from app.model.Roles import Roles, Permissions
 from app.model.medical_reps import MedicalReps, MedicalRepVisit
 from app.model.Branch import Branch, BranchUser
 from app.model.suppliers import Supplier, SupplierVisit
+from app.model.laboratories import Laboratory, LabVisit
 
-__all__ = ["User", "Organization", "UserRefreshToken", "Roles", "Permissions", "MedicalReps", "MedicalRepVisit", "Branch", "BranchUser", "Supplier", "SupplierVisit"]
+__all__ = [
+    "User", 
+    "Organization", 
+    "UserRefreshToken", 
+    "Roles", 
+    "Permissions", 
+    "MedicalReps", 
+    "MedicalRepVisit",
+    "Branch",
+    "BranchUser",
+    "Supplier",
+    "SupplierVisit",
+    "Laboratory",
+    "LabVisit",
+]
