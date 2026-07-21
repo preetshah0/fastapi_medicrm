@@ -35,4 +35,4 @@ class UserResponse(UserBase):
     deleted_at: Optional[datetime] = None
     roles: list[RoleResponse] = []
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
