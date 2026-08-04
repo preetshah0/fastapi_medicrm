@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.model.Roles import Roles
     from app.model.Branch import Branch
     from app.model.medical_reps import MedicalReps
+    from app.model.Patient import Patient
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -97,12 +98,12 @@ class Organization(Base):
         cascade="all, delete-orphan"
     )
 
-    # # --- hasMany Patients ---
-    # patients: Mapped[list["Patient"]] = relationship(
-    #     "Patient",
-    #     back_populates="organization",
-    #     cascade="all, delete-orphan"
-    # )
+    # --- hasMany Patients ---
+    patients: Mapped[list["Patient"]] = relationship(
+        "Patient",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
 
     # # --- hasMany Subscriptions ---
     # subscriptions: Mapped[list["Subscription"]] = relationship(
