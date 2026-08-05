@@ -1,10 +1,20 @@
-﻿from datetime import timedelta, datetime
+from datetime import timedelta, datetime
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from fastapi import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 from app.core.config import settings
 from app.model.User import User
 from app.utils.ApiResponse import *
+
+
+# class AuthenticationException(Exception):
+#     def __init__(self, message: str, status_code: int = 401):
+#         self.message = message
+#         self.status_code = status_code
+#         super().__init__(message)
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -79,3 +89,17 @@ async def decode_token(token: str, key: str | None = None, token_type: str = "ac
     except JWTError as e:
         print(e)
         return None
+
+
+security = HTTPBearer()
+
+
+async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+   
+    token = credentials.credentials
+    user_id = await decode_token(token, token_type="access")
+    
+    if not user_id:
+        return unauthorized_response("Invalid or expired token", data="")
+    
+    return user_id

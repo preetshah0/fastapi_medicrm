@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('id', sa.String(36), primary_key=True),   
     sa.Column('supplier_id',sa.String(36),sa.ForeignKey('suppliers.id',ondelete='CASCADE'),nullable=False),
     sa.Column('supplier_name',sa.String(255),nullable=True),
-    sa.Column('visited_date',sa.Date,server_default=sa.text('CURRENT_DATE')),
+    sa.Column('visited_date',sa.Date,server_default=sa.text('(CURRENT_DATE)')),
     sa.Column('batch_number',sa.String(255),nullable=True),
     sa.Column('visit_purpose',sa.String(255),nullable=False, server_default = "delivery"),
     sa.Column('notes', sa.String(255), nullable=True),

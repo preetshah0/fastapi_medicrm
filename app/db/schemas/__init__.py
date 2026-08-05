@@ -33,7 +33,6 @@ from .medical_reps import (
     MedicalRepVisitCreate,
     MedicalRepVisitResponse,
 )
-
 from .suppliers import (
     SupplierBase,
     SupplierCreate,
@@ -43,5 +42,28 @@ from .suppliers import (
     SupplierVisitCreate,
     SupplierVisitResponse,
 )
-
+from .patient import (
+    PatientBase,
+    PatientCreate,
+    PatientUpdate,
+    PatientResponse,
+    NoteBase,
+    NoteCreate,
+    NoteUpdate,
+    NoteResponse,
+    ReportBase,
+    ReportCreate,
+    ReportUpdate,
+    ReportResponse,
+    PatientAppointmentResponse,
+    PatientVisitCreate,
+    PatientVisitResponse,
+)
+from .appointments import (
+    AppointmentBase,
+    AppointmentCreate,
+    AppointmentUpdate,
+    AppointmentStatusUpdate,
+    AppointmentResponse,
+)
 from .response import APIResponse

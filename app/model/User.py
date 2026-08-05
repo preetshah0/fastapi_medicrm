@@ -10,6 +10,8 @@ from app.Enum.UserStatus import UserStatus
 if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Branch import BranchUser
+    from app.model.Patient import Patient, Note
+    from app.model.appointments import Appointment
 
 class User(Base):
     __tablename__ = "users"
@@ -62,5 +64,25 @@ class User(Base):
     branch_users: Mapped[list["BranchUser"]] = relationship(
         "BranchUser",
         back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    # patients: Mapped[list["Patient"]] = relationship(
+    #     "Patient",
+    #     back_populates="doctor",
+    #     foreign_keys="Patient.user_id",
+    #     cascade="all, delete-orphan",
+    # )
+
+    notes: Mapped[list["Note"]] = relationship(
+        "Note",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    doctor_appointments: Mapped[list["Appointment"]] = relationship(
+        "Appointment",
+        back_populates="doctor",
+        foreign_keys="Appointment.doctor_id",
         cascade="all, delete-orphan",
     )

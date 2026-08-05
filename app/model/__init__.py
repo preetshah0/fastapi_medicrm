@@ -6,6 +6,8 @@ from app.model.medical_reps import MedicalReps, MedicalRepVisit
 from app.model.Branch import Branch, BranchUser
 from app.model.suppliers import Supplier, SupplierVisit
 from app.model.laboratories import Laboratory, LabVisit
+from app.model.Patient import Patient, Note, Report, PatientAppointment, PatientVisit
+from app.model.appointments import Appointment
 
 __all__ = [
     "User", 
@@ -21,4 +23,10 @@ __all__ = [
     "SupplierVisit",
     "Laboratory",
     "LabVisit",
+    "Patient",
+    "Report",
+    "Note",
+    "Appointment",
+    "PatientAppointment",
+    "PatientVisit",
 ]
