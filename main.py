@@ -1,13 +1,13 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from starlette.middleware.sessions import SessionMiddleware
-from app.core.config import settings
+from app.core.config import settings, Settings, get_settings
 from app.core.scheduler import scheduler, register_jobs
 from app.db.database import engine, init_db
 from app.model import User                  # triggers model registration
-from app.utils.auth_utils import AuthenticationException
+# from app.utils.auth_utils import AuthenticationException
 from app.auth.routes.admin_api import router as admin_router
 from app.auth.routes.user_api import router as user_router
 from app.auth.routes.role_api import router as role_router
@@ -34,26 +34,30 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
 
 
-app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
+app = FastAPI(
+    title=settings.APP_NAME,
+    lifespan=lifespan,
+    debug=(settings.APP_ENV == "local" or settings.APP_DEBUG)
+)
 
 # Required for admin session
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
 
 # Exception Handlers for consistent API responses
-@app.exception_handler(AuthenticationException)
-async def authentication_exception_handler(request, exc: AuthenticationException):
-    """
-    Handle authentication exceptions and return consistent API response format
-    """
-    return JSONResponse(
-        status_code=exc.status_code,
-        content=jsonable_encoder({
-            "success": False,
-            "message": exc.message,
-            "data": None,
-        }),
-    )
+# @app.exception_handler(AuthenticationException)
+# async def authentication_exception_handler(request, exc: AuthenticationException):
+#     """
+#     Handle authentication exceptions and return consistent API response format
+#     """
+#     return JSONResponse(
+#         status_code=exc.status_code,
+#         content=jsonable_encoder({
+#             "success": False,
+#             "message": exc.message,
+#             "data": None,
+#         }),
+#     )
 
 
 app.include_router(admin_router)
@@ -71,5 +75,10 @@ app.include_router(appointment_router)
 
 
 @app.get('/')
-def root():
-    return {"message": f"{settings.APP_NAME} API is running!"}
+def root(settings: Settings = Depends(get_settings)):
+    return {
+        "app_name": settings.APP_NAME,
+        "app_env": settings.APP_ENV,
+        "app_debug": settings.APP_DEBUG,
+        "message": f"{settings.APP_NAME} API is running!"
+    }

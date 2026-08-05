@@ -86,7 +86,7 @@ def refresh_token(db: Session, refresh_token_str: str):
 
     user_id = None
     try:
-        from jose import jwt
+        
         secret_key = settings.REFRESH_TOKEN_SECRET_KEY or settings.SECRET_KEY
         payload = jwt.decode(refresh_token_str, secret_key, algorithms=["HS256"])
         user_id = payload.get("sub")

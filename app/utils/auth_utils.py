@@ -10,11 +10,11 @@ from app.model.User import User
 from app.utils.ApiResponse import *
 
 
-class AuthenticationException(Exception):
-    def __init__(self, message: str, status_code: int = 401):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
+# class AuthenticationException(Exception):
+#     def __init__(self, message: str, status_code: int = 401):
+#         self.message = message
+#         self.status_code = status_code
+#         super().__init__(message)
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
