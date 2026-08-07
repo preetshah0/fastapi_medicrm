@@ -66,4 +66,22 @@ from .appointments import (
     AppointmentStatusUpdate,
     AppointmentResponse,
 )
+from .product_categories import (
+    ProductCategoryBase,
+    ProductCategoryCreate,
+    ProductCategoryUpdate,
+    ProductCategoryResponse,
+)
+from .master_options import (
+    MasterOptionBase,
+    MasterOptionCreate,
+    MasterOptionUpdate,
+    MasterOptionResponse,
+)
+from .products import (
+    ProductBase,
+    ProductCreate,
+    ProductUpdate,
+    ProductResponse,
+)
 from .response import APIResponse

@@ -9,7 +9,7 @@ from app.db.schemas.suppliers import (
     SupplierVisitCreate,
     SupplierVisitResponse
 )
-from app.model.suppliers import Supplier, SupplierVisit
+from app.model.Supplier import Supplier, SupplierVisit
 from app.owner.controller.supplier import (
     create_supplier,
     update_supplier,
@@ -24,7 +24,7 @@ from app.utils.ApiResponse import success_response, error_response, not_found_re
 
 router = APIRouter(prefix="/owner/suppliers", tags=["suppliers"])
 
-from app.model.medical_reps import MedicalReps
+from app.model.MedicalRep import MedicalReps
 from app.model.Branch import Branch
 from app.Enum.SupplierType import SupplierType
 

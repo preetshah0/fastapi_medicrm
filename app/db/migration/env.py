@@ -5,15 +5,15 @@ from alembic import context
 
 # --- ADD YOUR IMPORTS HERE ---
 from app.db.database import Base
-from app.model.User import User
-from app.model.Organization import Organization
-from app.model.UserRefreshToken import UserRefreshToken
-from app.model.Roles import Roles
-from app.model.Roles import Permissions
-from app.model.Branch import Branch, BranchUser
-from app.model.medical_reps import MedicalReps, MedicalRepVisit
-from app.model.suppliers import Supplier, SupplierVisit
-from app.model.laboratories import Laboratory, LabVisit
+# from app.model.User import User
+# from app.model.Organization import Organization
+# from app.model.UserRefreshToken import UserRefreshToken
+# from app.model.Role import Roles, Permissions
+# from app.model.Branch import Branch, BranchUser
+# from app.model.MedicalRep import MedicalReps, MedicalRepVisit
+# from app.model.Supplier import Supplier, SupplierVisit
+# from app.model.Laboratory import Laboratory, LabVisit
+# from app.model.ProductCategory import ProductCategory
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

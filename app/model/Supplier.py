@@ -10,7 +10,7 @@ from app.Enum.SupplierType import SupplierType
 if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Branch import Branch
-    from app.model.medical_reps import MedicalReps
+    from app.model.MedicalRep import MedicalReps
 
 class Supplier(Base):
     __tablename__  = "suppliers"

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date, time
-from app.model.appointments import Appointment
+from app.model.Appointment import Appointment
 from app.model.Branch import Branch
 from app.model.User import User
 from app.model.Patient import Patient

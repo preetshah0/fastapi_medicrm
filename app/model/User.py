@@ -11,7 +11,9 @@ if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Branch import BranchUser
     from app.model.Patient import Patient, Note
-    from app.model.appointments import Appointment
+    from app.model.Appointment import Appointment
+    from app.model.Role import Roles
+    from app.model.UserRefreshToken import UserRefreshToken
 
 class User(Base):
     __tablename__ = "users"

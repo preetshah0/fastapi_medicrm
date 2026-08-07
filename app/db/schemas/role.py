@@ -1,6 +1,6 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional
-from app.model.Roles import Permissions
+from app.model.Role import Permissions
 from datetime import datetime
 
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.model.User import User
-from app.model.Roles import Roles
+from app.model.Role import Roles
 from app.db.database import get_db, session as db_session
 from app.db.schemas import APIResponse, BranchCreate, BranchResponse, BranchUpdate
 from app.db.schemas.branch import BranchUserAssignRequest, BranchUserResponse

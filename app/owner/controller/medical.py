@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.model.medical_reps import MedicalReps, MedicalRepVisit
+from app.model.MedicalRep import MedicalReps, MedicalRepVisit
 from app.model.Branch import Branch
 from app.db.schemas.medical_reps import MedicalRepsCreate, MedicalRepsUpdate, MedicalRepVisitCreate
 

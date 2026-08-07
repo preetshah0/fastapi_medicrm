@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.model.Organization import Organization
 from app.model.User import User
-from app.model.Roles import Roles as Role
+from app.model.Role import Roles as Role
 from app.model.Branch import Branch
 from app.db.schemas.organization import OrganizationCreate, OrganizationUpdate
 from app.Enum.OrganizationStatus import OrganizationStatus
