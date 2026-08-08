@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.model.Branch import Branch, BranchUser
 from app.model.User import User
-from app.model.Roles import Roles
+from app.model.Role import Roles
 from app.db.schemas.branch import BranchCreate, BranchUpdate
 
 

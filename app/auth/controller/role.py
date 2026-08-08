@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.model.Roles import Roles as Role, Permissions
+from app.model.Role import Roles as Role, Permissions
 from app.db.schemas.role import RoleCreate, RoleUpdate, PermissionCreate, PermissionUpdate, PermissionResponse
 from app.utils.ApiResponse import success_response, error_response, not_found_response
 

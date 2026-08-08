@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, date, time, timedelta
 from typing import Optional, List
 
-from app.model.appointments import Appointment
+from app.model.Appointment import Appointment
 from app.model.Branch import Branch
 from app.model.Patient import PatientAppointment, PatientVisit
 from app.Enum.AppointmentStatus import AppointmentStatus

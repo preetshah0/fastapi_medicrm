@@ -9,7 +9,7 @@ from app.db.schemas.medical_reps import (
     MedicalRepVisitCreate,
     MedicalRepVisitResponse
 )
-from app.model.medical_reps import MedicalReps
+from app.model.MedicalRep import MedicalReps
 from app.owner.controller.medical import (
     create_medical_representatives,
     update_medical_representatives,

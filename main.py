@@ -8,16 +8,9 @@ from app.core.scheduler import scheduler, register_jobs
 from app.db.database import engine, init_db
 from app.model import User                  # triggers model registration
 # from app.utils.auth_utils import AuthenticationException
-from app.auth.routes.admin_api import router as admin_router
-from app.auth.routes.user_api import router as user_router
-from app.auth.routes.role_api import router as role_router
-from app.owner.routes.team_api import router as team_router
-from app.admin.routes.organization_api import router as organization_router
-from app.owner.routes.branch_api import router as branch_router
-from app.owner.routes.medical_api import router as medical_reps_router
-from app.owner.routes.supplier_api import router as supplier_router
-from app.owner.routes.patient_api import router as patient_router, notes_router, reports_router
-from app.owner.routes.appointment_api import router as appointment_router
+from app.auth.routes.router import router as auth_router
+from app.admin.routes.router import router as admin_router
+from app.owner.routes.router import router as owner_router
 # from app.admin.auth import AdminAuth
 # from app.admin.views.user_view import UserAdmin
 # from app.admin.views.organization_view import OrganizationAdmin
@@ -60,18 +53,9 @@ app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 #     )
 
 
+app.include_router(auth_router)
 app.include_router(admin_router)
-app.include_router(user_router)
-app.include_router(role_router)
-app.include_router(team_router)
-app.include_router(organization_router)
-app.include_router(branch_router)
-app.include_router(medical_reps_router)
-app.include_router(supplier_router)
-app.include_router(patient_router)
-app.include_router(notes_router)
-app.include_router(reports_router)
-app.include_router(appointment_router)
+app.include_router(owner_router)
 
 
 @app.get('/')

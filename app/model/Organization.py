@@ -6,14 +6,17 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
 from app.Enum.OrganizationPlanType import OrganizationPlanType
 from app.Enum.OrganizationStatus import OrganizationStatus
-from app.model.Roles import user_roles
+from app.model.Role import user_roles
 
 if TYPE_CHECKING:
     from app.model.User import User
-    from app.model.Roles import Roles
+    from app.model.Role import Roles
     from app.model.Branch import Branch
-    from app.model.medical_reps import MedicalReps
+    from app.model.MedicalRep import MedicalReps
     from app.model.Patient import Patient
+    from app.model.ProductCategory import ProductCategory
+    from app.model.Product import Product
+    from app.model.MasterOption import Master
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -101,6 +104,27 @@ class Organization(Base):
     # --- hasMany Patients ---
     patients: Mapped[list["Patient"]] = relationship(
         "Patient",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    # --- hasMany Product Categories ---
+    product_categories: Mapped[list["ProductCategory"]] = relationship(
+        "ProductCategory",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    # --- hasMany Products ---
+    products: Mapped[list["Product"]] = relationship(
+        "Product",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    # --- hasMany Master Options ---
+    master_options: Mapped[list["Master"]] = relationship(
+        "Master",
         back_populates="organization",
         cascade="all, delete-orphan"
     )

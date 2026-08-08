@@ -14,7 +14,7 @@ from app.Enum.AppointmentDuration import AppointmentDuration
 if TYPE_CHECKING:
     from app.model.User import User
     from app.model.Organization import Organization
-    from app.model.appointments import Appointment
+    from app.model.Appointment import Appointment
 
 class Patient(Base):
     __tablename__ = "patients"

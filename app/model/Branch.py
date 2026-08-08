@@ -9,9 +9,9 @@ from app.Enum.BranchStatus import BranchStatus
 if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.User import User
-    from app.model.Roles import Roles
-    from app.model.medical_reps import MedicalReps
-    from app.model.appointments import Appointment
+    from app.model.Role import Roles
+    from app.model.MedicalRep import MedicalReps
+    from app.model.Appointment import Appointment
 
 
 class BranchUser(Base):

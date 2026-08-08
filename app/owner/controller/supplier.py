@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from app.model.suppliers import Supplier,SupplierVisit
+from app.model.Supplier import Supplier, SupplierVisit
 from app.model.Branch import Branch
-from app.model.medical_reps import MedicalReps
+from app.model.MedicalRep import MedicalReps
 from app.db.schemas.suppliers import SupplierCreate, SupplierUpdate, SupplierVisitCreate
 from app.Enum.SupplierType import SupplierType
 

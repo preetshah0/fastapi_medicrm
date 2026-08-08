@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.model.User import User
-from app.model.Roles import Roles as Role
+from app.model.Role import Roles as Role
 from app.db.schemas.user import UserCreate, UserUpdate
 from app.utils.auth_utils import hash_password
 from app.utils.ApiResponse import success_response, not_found_response, error_response

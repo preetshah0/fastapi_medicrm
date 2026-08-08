@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.model.laboratories import Laboratory, LabVisit
+from app.model.Laboratory import Laboratory, LabVisit
 from app.model.Branch import Branch
 from app.db.schemas.labs import LabCreate, LabUpdate, LabVisitCreate
 from app.Enum.LaboratoryFacilityType import LaboratoryFacilityType
