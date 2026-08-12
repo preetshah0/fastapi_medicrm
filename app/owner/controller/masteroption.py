@@ -1,8 +1,12 @@
+from app.Enum.MasterOptionType import MasterOptionType
+from typing import Optional, List, Dict
 from sqlalchemy.orm import Session
 from app.model.MasterOption import Master
-from app.db.schemas.master_options import MasterOptionCreate, MasterOptionUpdate
-from app.Enum.MasterOptionType import MasterOptionType
-from typing import Optional, List
+from app.db.schemas.master_options import (
+    MasterOptionCreate, 
+    MasterOptionUpdate,
+    MasterOptionDropdownResponse,
+)
 
 
 def generate_slug(name: str) -> str:
@@ -85,3 +89,21 @@ def delete_master_option(db: Session, master_option_id: str, organization_id: st
     db.delete(master_option)
     db.commit()
     return True
+
+
+def get_master_option_dropdown(
+    db: Session,
+    organization_id: str,
+    option_type: MasterOptionType
+) -> List[MasterOptionDropdownResponse]:
+    results = (
+        db.query(Master.id, Master.name)
+        .filter(
+            Master.organization_id == organization_id,
+            Master.type == option_type.value,
+            Master.is_active == True
+        )
+        .all()
+    )
+
+    return [MasterOptionDropdownResponse(id=row.id, name=row.name) for row in results]

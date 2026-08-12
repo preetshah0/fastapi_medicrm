@@ -84,4 +84,14 @@ from .products import (
     ProductUpdate,
     ProductResponse,
 )
+from .inventories import (
+    InventoryBase,
+    InventoryCreate,
+    InventoryUpdate,
+    InventoryResponse,
+    BatchBase,
+    BatchCreate,
+    BatchUpdate,
+    BatchResponse,
+)
 from .response import APIResponse

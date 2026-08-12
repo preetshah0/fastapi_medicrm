@@ -9,6 +9,7 @@ from app.owner.routes.product_category_api import router as product_category_rou
 from app.owner.routes.laboratory_api import router as laboratory_router
 from app.owner.routes.masteroption_api import router as masteroption_router
 from app.owner.routes.product_api import router as product_router
+from app.owner.routes.inventory_api import router as inventory_router
 
 router = APIRouter()
 
@@ -24,3 +25,4 @@ router.include_router(product_category_router)
 router.include_router(laboratory_router)
 router.include_router(masteroption_router)
 router.include_router(product_router)
+router.include_router(inventory_router)

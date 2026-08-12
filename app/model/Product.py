@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from app.model.Branch import Branch
     from app.model.ProductCategory import ProductCategory
     from app.model.MasterOption import Master
+    from app.model.Inventory import Inventory, Batch
 
 
 class Product(Base):
@@ -33,6 +34,7 @@ class Product(Base):
     dosage_strength: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     conversion_factor: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     packs_per_outer: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    low_stock_threshold: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default=text("1"))
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     is_available: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("1"))
     created_at: Mapped[datetime] = mapped_column(server_default=text("CURRENT_TIMESTAMP"))
@@ -46,3 +48,6 @@ class Product(Base):
     size: Mapped[Optional["Master"]] = relationship("Master", foreign_keys=[size_id], back_populates="sizes")
     outer_size: Mapped[Optional["Master"]] = relationship("Master", foreign_keys=[outer_size_id], back_populates="outer_sizes")
     base_unit: Mapped[Optional["Master"]] = relationship("Master", foreign_keys=[base_unit_id], back_populates="base_units")
+
+    inventory: Mapped[Optional["Inventory"]] = relationship("Inventory", back_populates="product", uselist=False, cascade="all, delete-orphan")
+    batches: Mapped[list["Batch"]] = relationship("Batch", back_populates="product", cascade="all, delete-orphan")

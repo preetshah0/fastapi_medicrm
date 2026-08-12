@@ -40,6 +40,7 @@ def upgrade() -> None:
         sa.Column('dosage_strength', sa.String(255), nullable=True),
         sa.Column('conversion_factor', sa.Integer(), nullable=True),
         sa.Column('packs_per_outer', sa.Integer(), nullable=True),
+        sa.Column('low_stock_threshold', sa.Integer(), nullable=False, server_default=sa.text('1')),
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('is_available', sa.Boolean(), nullable=False, server_default=sa.text('1')),
         sa.Column('created_at', sa.DateTime, server_default=sa.text('CURRENT_TIMESTAMP')),

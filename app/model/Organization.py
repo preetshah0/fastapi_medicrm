@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from app.model.ProductCategory import ProductCategory
     from app.model.Product import Product
     from app.model.MasterOption import Master
+    from app.model.Inventory import Inventory
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -125,6 +126,13 @@ class Organization(Base):
     # --- hasMany Master Options ---
     master_options: Mapped[list["Master"]] = relationship(
         "Master",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    # --- hasMany Inventories ---
+    inventories: Mapped[list["Inventory"]] = relationship(
+        "Inventory",
         back_populates="organization",
         cascade="all, delete-orphan"
     )

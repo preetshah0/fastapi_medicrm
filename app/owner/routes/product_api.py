@@ -103,6 +103,10 @@ def create_product_route(
         if not master_outer:
             return error_response("The selected pack type is hidden or invalid. Please choose a visible option.", data="")
 
+    # 8. Validate low stock threshold
+    if payload.low_stock_threshold < 1:
+        return error_response("Low stock threshold cannot be less than 1.", data="")
+
     # Create Product via Controller
     product = create_product(db=db, product_data=payload, organization_id=organization_id)
     return success_response("Product created successfully", product)
@@ -111,7 +115,9 @@ def create_product_route(
 @router.get("/organization/{organization_id}", response_model=APIResponse[List[ProductResponse]])
 def get_products_route(
     organization_id: str,
-    is_available: bool = True,
+    branch_id: Optional[str] = None,
+    category_id: Optional[str] = None,
+    is_available: Optional[bool] = None,
     skip: int = 0,
     limit: int = 10,
     db: Session = Depends(get_db)
@@ -119,6 +125,8 @@ def get_products_route(
     products = get_products(
         db=db, 
         organization_id=organization_id, 
+        branch_id=branch_id,
+        category_id=category_id,
         is_available=is_available, 
         skip=skip, 
         limit=limit
@@ -149,6 +157,9 @@ def update_product_route(
     if not product:
         return not_found_response("Product not found", data="")
 
+    if payload.low_stock_threshold is not None and payload.low_stock_threshold < 1:
+        return error_response("Low stock threshold cannot be less than 1.", data="")
+
     if payload.sku:
         existing_sku = db.query(Product).filter(
             Product.organization_id == organization_id,
@@ -169,7 +180,7 @@ def update_product_route(
     return success_response("Product updated successfully", result)
 
 
-@router.delete("/{product_id}/organization/{organization_id}")
+@router.delete("/{product_id}/organization/{organization_id}", response_model=APIResponse[str])
 def delete_product_route(
     product_id: str,
     organization_id: str,

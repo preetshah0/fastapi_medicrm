@@ -114,7 +114,7 @@ def update_master_option_route(
     return success_response("Master option updated successfully", result)
 
 
-@router.delete("/{master_option_id}/organization/{organization_id}")
+@router.delete("/{master_option_id}/organization/{organization_id}", response_model=APIResponse[str])
 def delete_master_option_route(
     master_option_id: str,
     organization_id: str,
