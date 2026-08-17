@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Branch import Branch
     from app.model.MedicalRep import MedicalReps
+    from app.model.Inventory import Batch
 
 class Supplier(Base):
     __tablename__  = "suppliers"
@@ -51,6 +52,7 @@ class Supplier(Base):
     branch: Mapped["Branch"] = relationship("Branch", foreign_keys=[branch_id])
     medical_rep: Mapped["MedicalReps"] = relationship("MedicalReps", foreign_keys=[reps_id])
     visits: Mapped[List["SupplierVisit"]] = relationship("SupplierVisit", back_populates="supplier", cascade="all, delete-orphan")
+    batches: Mapped[List["Batch"]] = relationship("Batch", back_populates="supplier")
 
 
 class SupplierVisit(Base):

@@ -36,3 +36,11 @@ class UserResponse(UserBase):
     roles: list[RoleResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class DoctorDropdownResponse(BaseModel):
+    id: str
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+

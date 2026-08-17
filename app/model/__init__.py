@@ -11,6 +11,8 @@ from app.model.Appointment import Appointment
 from app.model.ProductCategory import ProductCategory
 from app.model.MasterOption import Master
 from app.model.Product import Product
+from app.model.Inventory import Inventory, Batch
+from app.model.Prescription import Prescription, PrescriptionMedication
 
 __all__ = [
     "User", 
@@ -35,4 +37,8 @@ __all__ = [
     "ProductCategory",
     "Master",
     "Product",
+    "Inventory",
+    "Batch",
+    "Prescription",
+    "PrescriptionMedication",
 ]

@@ -1,4 +1,4 @@
-from .user import UserBase, UserCreate, UserUpdate, UserResponse
+from .user import UserBase, UserCreate, UserUpdate, UserResponse, DoctorDropdownResponse
 from .organization import OrganizationBase, OrganizationCreate, OrganizationUpdate, OrganizationResponse
 from .refresh_token import (
     UserRefreshTokenBase,
@@ -22,7 +22,7 @@ from .role import (
     PermissionUpdate,
     PermissionResponse,
 )
-from .branch import BaseBranch, BranchCreate, BranchUpdate, BranchResponse
+from .branch import BaseBranch, BranchCreate, BranchUpdate, BranchResponse, BranchDropdownResponse
 from .labs import LabBase, LabCreate, LabUpdate, LabResponse, LabVisitBase, LabVisitCreate, LabVisitResponse
 from .medical_reps import (
     MedicalRepsBase,
@@ -47,6 +47,7 @@ from .patient import (
     PatientCreate,
     PatientUpdate,
     PatientResponse,
+    PatientDropdownResponse,
     NoteBase,
     NoteCreate,
     NoteUpdate,
@@ -83,5 +84,27 @@ from .products import (
     ProductCreate,
     ProductUpdate,
     ProductResponse,
+)
+from .inventories import (
+    InventoryBase,
+    InventoryCreate,
+    InventoryUpdate,
+    InventoryResponse,
+    BatchBase,
+    BatchCreate,
+    BatchUpdate,
+    BatchResponse,
+)
+from .prescriptions import (
+    PrescriptionBase,
+    PrescriptionCreate,
+    PrescriptionUpdate,
+    PrescriptionResponse,
+    PrescriptionMedicationBase,
+    PrescriptionMedicationCreate,
+    PrescriptionMedicationUpdate,
+    PrescriptionMedicationResponse,
+    MedicationDropdownResponse,
+    FollowupDurationOptionResponse,
 )
 from .response import APIResponse

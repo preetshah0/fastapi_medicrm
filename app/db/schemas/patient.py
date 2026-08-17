@@ -152,3 +152,11 @@ class PatientResponse(PatientBase):
     patient_visits: List[PatientVisitResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PatientDropdownResponse(BaseModel):
+    id: str
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+

@@ -30,3 +30,17 @@ class MasterOptionResponse(MasterOptionBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MasterOptionDropdownResponse(BaseModel):
+    id: str
+    name: str
+
+   
+
+
+class MasterOptionTypeResponse(BaseModel):
+    value: str
+    label: str
+
+model_config = ConfigDict(from_attributes=True)
