@@ -36,4 +36,11 @@ class MasterOptionDropdownResponse(BaseModel):
     id: str
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
+   
+
+
+class MasterOptionTypeResponse(BaseModel):
+    value: str
+    label: str
+
+model_config = ConfigDict(from_attributes=True)

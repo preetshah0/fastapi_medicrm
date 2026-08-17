@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.model.Branch import Branch
     from app.model.Product import Product
     from app.model.Supplier import Supplier
+    from app.model.Prescription import PrescriptionMedication
 
 
 class Inventory(Base):
@@ -71,7 +72,11 @@ class Inventory(Base):
     branch: Mapped["Branch"] = relationship("Branch", foreign_keys=[branch_id], back_populates="inventories")
     product: Mapped["Product"] = relationship("Product", foreign_keys=[product_id], back_populates="inventory")
     batches: Mapped[List["Batch"]] = relationship("Batch", foreign_keys="[Batch.inventory_id]", back_populates="inventory", cascade="all, delete-orphan")
-    
+    prescription_medications: Mapped[List["PrescriptionMedication"]] = relationship(
+        "PrescriptionMedication",
+        foreign_keys="[PrescriptionMedication.inventory_id]",
+        back_populates="inventory",
+    )
 
 
 class Batch(Base):
@@ -134,3 +139,8 @@ class Batch(Base):
     inventory: Mapped["Inventory"] = relationship("Inventory", foreign_keys=[inventory_id], back_populates="batches")
     product: Mapped["Product"] = relationship("Product", foreign_keys=[product_id], back_populates="batches")
     supplier: Mapped["Supplier"] = relationship("Supplier", foreign_keys=[supplier_id], back_populates="batches")
+    prescription_medications: Mapped[List["PrescriptionMedication"]] = relationship(
+        "PrescriptionMedication",
+        foreign_keys="[PrescriptionMedication.inventory_batch_id]",
+        back_populates="inventory_batch",
+    )

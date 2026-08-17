@@ -57,6 +57,14 @@ class BranchResponse(BaseBranch):
     model_config = ConfigDict(from_attributes=True)
 
 
+class BranchDropdownResponse(BaseModel):
+    id: str
+    branch_name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+
 class BranchUserBase(BaseModel):
     branch_id: str
     user_id: str

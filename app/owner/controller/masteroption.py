@@ -6,7 +6,17 @@ from app.db.schemas.master_options import (
     MasterOptionCreate, 
     MasterOptionUpdate,
     MasterOptionDropdownResponse,
+    MasterOptionTypeResponse,
 )
+
+
+def get_master_option_types():
+    return [
+        MasterOptionTypeResponse(value=item.value, label=item.label)
+        for item in MasterOptionType
+    ]
+
+
 
 
 def generate_slug(name: str) -> str:
@@ -95,7 +105,7 @@ def get_master_option_dropdown(
     db: Session,
     organization_id: str,
     option_type: MasterOptionType
-) -> List[MasterOptionDropdownResponse]:
+):
     results = (
         db.query(Master.id, Master.name)
         .filter(

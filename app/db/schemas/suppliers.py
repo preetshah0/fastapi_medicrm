@@ -32,6 +32,14 @@ class SupplierResponse(SupplierBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class SupplierDropdownResponse(BaseModel):
+    id: str
+    company: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+
 class SupplierVisitBase(BaseModel):
     supplier_name: str
     visited_date: date = Field(default=None, json_schema_extra={"example": "2026-07-05"})

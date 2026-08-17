@@ -13,6 +13,8 @@ from app.db.schemas.inventories import (
     BulkBatchCreateRequest,
 )
 from app.db.schemas.master_options import MasterOptionDropdownResponse
+from app.db.schemas.suppliers import SupplierDropdownResponse
+
 from app.owner.controller.inventory_batch import (
     create_inventory_batch,
     create_bulk_inventory_batches,
@@ -198,7 +200,7 @@ def get_medicine_dropdown_route(
     return success_response("Medicine dropdown fetched successfully", options)
 
 
-@router.get("/dropdown/suppliers/organization/{organization_id}", response_model=APIResponse[List[MasterOptionDropdownResponse]])
+@router.get("/dropdown/suppliers/organization/{organization_id}", response_model=APIResponse[List[SupplierDropdownResponse]])
 def get_supplier_dropdown_route(
     organization_id: str,
     branch_id: Optional[str] = None,
@@ -206,3 +208,4 @@ def get_supplier_dropdown_route(
 ):
     options = get_supplier_dropdown(db=db, organization_id=organization_id, branch_id=branch_id)
     return success_response("Supplier dropdown fetched successfully", options)
+

@@ -17,6 +17,8 @@ from app.services.inventory_service import (
     sync_inventory_status,
 )
 from app.db.schemas.master_options import MasterOptionDropdownResponse
+from app.db.schemas.suppliers import SupplierDropdownResponse
+
 from app.services.product_service import (
     calculate_unit_quantities,
     calculate_tier_selling_prices,
@@ -38,7 +40,7 @@ def get_medicine_dropdown(
     branch_id: str
 ):
     products = (
-        db.query(Product)
+        db.query(Product.id, Product.name, Product.variant, Product.dosage_strength)
         .filter(
             Product.organization_id == organization_id,
             Product.branch_id == branch_id,
@@ -60,26 +62,23 @@ def get_medicine_dropdown(
 def get_supplier_dropdown(
     db: Session, 
     organization_id: str, 
-    branch_id: Optional[str] = None
-) -> List[MasterOptionDropdownResponse]:
-    
-    query = db.query(Supplier.id, Supplier.company).filter(
-        Supplier.organization_id == organization_id
-    )
-    
-    if branch_id:
-        query = query.filter(Supplier.branch_id == branch_id)
-        
-    results = query.all()
+    branch_id: str
+):
 
-    supplier_dropdown = [
-        MasterOptionDropdownResponse(
+    results = db.query(Supplier.id, Supplier.company).filter(
+        Supplier.organization_id == organization_id,
+        Supplier.branch_id == branch_id,
+    ).all()
+
+    return [
+        SupplierDropdownResponse(
             id=row.id,
-            name=row.company or "Unnamed Supplier"
+            company=row.company or "Unnamed Supplier"
         )
         for row in results
     ]
-    return supplier_dropdown
+
+
 
 def get_or_create_inventory(
     db: Session,
