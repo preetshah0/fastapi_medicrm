@@ -7,7 +7,11 @@ from app.model.User import User
 from app.model.Patient import Patient
 from app.db.schemas.appointments import AppointmentCreate, AppointmentUpdate, AppointmentStatusUpdate
 from app.Enum.AppointmentDuration import AppointmentDuration
-from app.Enum.AppointmentStatus import AppointmentStatus
+from app.Enum.AppointmentType import AppointmentType
+from app.Enum.FollowupStatus import FollowupStatus
+from app.Enum.FollowupVisitStatus import FollowupVisitStatus
+from app.model.FollowUp import AppointmentFollowUp
+from app.services.followup_service import mark_overdue_followups, update_followup_on_edit
 from app.services.appointment_service import (
     calculate_end_time,
     get_available_appointment_slots,
@@ -15,6 +19,7 @@ from app.services.appointment_service import (
     log_patient_visit,
     mark_overdue_appointments,
 )
+from app.Enum.AppointmentStatus import AppointmentStatus
 
 
 def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
@@ -54,6 +59,25 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
 
     
     log_patient_appointment(db, appointment)
+
+    if appointment.type == AppointmentType.FOLLOW_UP.value:
+        org_id = branch.organization_id if branch else None
+        db_followup = AppointmentFollowUp(
+            organization_id=org_id,
+            branch_id=appointment.branch_id,
+            patient_id=appointment.patient_id,
+            doctor_id=appointment.doctor_id,
+            appointment_id=appointment.id,
+            followable_type="appointment",
+            followable_id=appointment.id,
+            followup_date=appointment.appointment_date,
+            followup_time=appointment.start_time,
+            followup_duration=appointment.duration_minutes,
+            status=FollowupStatus.SCHEDULED.value,
+            visited_status=FollowupVisitStatus.PENDING.value,
+        )
+        db.add(db_followup)
+        db.commit()
 
     db.refresh(appointment)
     return appointment
@@ -101,6 +125,46 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
     # Automatically update linked PatientAppointment log
     log_patient_appointment(db, appointment)
 
+    # Sync linked AppointmentFollowUp if type is follow_up
+    if appointment.type == AppointmentType.FOLLOW_UP.value:
+        mark_overdue_followups(db)
+        existing_followup = (
+            db.query(AppointmentFollowUp)
+            .filter(AppointmentFollowUp.appointment_id == appointment.id)
+            .order_by(AppointmentFollowUp.created_at.desc())
+            .first()
+        )
+        if existing_followup:
+            update_followup_on_edit(
+                db=db,
+                followup=existing_followup,
+                new_date=appointment.appointment_date,
+                new_time=appointment.start_time,
+                new_duration=appointment.duration_minutes,
+                patient_id=appointment.patient_id,
+                doctor_id=appointment.doctor_id,
+                branch_id=appointment.branch_id,
+            )
+        else:
+            branch = db.query(Branch).filter(Branch.id == appointment.branch_id).first()
+            org_id = branch.organization_id if branch else None
+            db_followup = AppointmentFollowUp(
+                organization_id=org_id,
+                branch_id=appointment.branch_id,
+                patient_id=appointment.patient_id,
+                doctor_id=appointment.doctor_id,
+                appointment_id=appointment.id,
+                followable_type="appointment",
+                followable_id=appointment.id,
+                followup_date=appointment.appointment_date,
+                followup_time=appointment.start_time,
+                followup_duration=appointment.duration_minutes,
+                status=FollowupStatus.SCHEDULED.value,
+                visited_status=FollowupVisitStatus.PENDING.value,
+            )
+            db.add(db_followup)
+        db.commit()
+
     db.refresh(appointment)
     return appointment
 
@@ -145,8 +209,21 @@ def update_appointment_status(db: Session, appointment_id: str, payload: Appoint
         return None
 
     appointment.status = payload.status.value
+
+    if payload.status == AppointmentStatus.CANCELLED:
+        existing_followup = (
+            db.query(AppointmentFollowUp)
+            .filter(AppointmentFollowUp.appointment_id == appointment.id)
+            .filter(AppointmentFollowUp.status.in_([FollowupStatus.SCHEDULED.value, FollowupStatus.RESCHEDULED.value]))
+            .first()
+        )
+        if existing_followup:
+            existing_followup.status = FollowupStatus.CANCELLED.value
+            existing_followup.visited_status = FollowupVisitStatus.CANCELLED.value
+
     db.commit()
     db.refresh(appointment)
+
 
     # Sync patient appointment log
     log_patient_appointment(db, appointment)

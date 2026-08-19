@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from app.model.Role import Roles
     from app.model.UserRefreshToken import UserRefreshToken
     from app.model.Prescription import Prescription
+    from app.model.FollowUp import FollowUp
 
 class User(Base):
     __tablename__ = "users"
@@ -94,5 +95,12 @@ class User(Base):
         "Prescription",
         back_populates="doctor",
         foreign_keys="Prescription.doctor_id",
+        cascade="all, delete-orphan",
+    )
+
+    doctor_followups: Mapped[list["FollowUp"]] = relationship(
+        "FollowUp",
+        back_populates="doctor",
+        foreign_keys="FollowUp.doctor_id",
         cascade="all, delete-orphan",
     )

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.model.Patient import Patient
     from app.model.User import User
     from app.model.Inventory import Inventory, Batch
+    from app.model.FollowUp import FollowUp
 
 
 class Prescription(Base):
@@ -40,7 +41,7 @@ class Prescription(Base):
     # payment_method: Mapped[str | None] = mapped_column(String(255), nullable=True)
     # payment_status: Mapped[str] = mapped_column(String(255), nullable=False, server_default="pending")
 
-    follow_up: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("0"))
+    follow_up_required: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("0"))
     follow_up_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     follow_up_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     follow_up_note: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -58,6 +59,13 @@ class Prescription(Base):
         "PrescriptionMedication",
         back_populates="prescription",
         cascade="all, delete-orphan",
+    )
+    followup: Mapped[Optional["FollowUp"]] = relationship(
+        "PrescriptionFollowUp",
+        primaryjoin="Prescription.id == PrescriptionFollowUp.prescription_id",
+        back_populates="prescription",
+        uselist=False,
+        order_by="desc(PrescriptionFollowUp.created_at)",
     )
 
 

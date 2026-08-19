@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from app.model.Product import Product
     from app.model.MasterOption import Master
     from app.model.Inventory import Inventory
+    from app.model.FollowUp import FollowUp
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -133,6 +134,14 @@ class Organization(Base):
     # --- hasMany Inventories ---
     inventories: Mapped[list["Inventory"]] = relationship(
         "Inventory",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    # --- hasMany Followups ---
+    followups: Mapped[list["FollowUp"]] = relationship(
+        "FollowUp",
+        foreign_keys="FollowUp.organization_id",
         back_populates="organization",
         cascade="all, delete-orphan"
     )

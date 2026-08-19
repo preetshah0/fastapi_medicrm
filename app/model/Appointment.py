@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from datetime import datetime, date, time
 from sqlalchemy import String, ForeignKey, DateTime, Date, Time, Integer, Float, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from app.model.Branch import Branch
     from app.model.User import User
     from app.model.Patient import Patient, PatientAppointment, PatientVisit
+    from app.model.FollowUp import FollowUp
 
 
 class Appointment(Base):
@@ -71,6 +72,13 @@ class Appointment(Base):
     )
     patient_visits: Mapped[list["PatientVisit"]] = relationship(
         "PatientVisit", back_populates="appointment", cascade="all, delete-orphan"
+    )
+    followup: Mapped[Optional["FollowUp"]] = relationship(
+        "AppointmentFollowUp",
+        primaryjoin="Appointment.id == AppointmentFollowUp.appointment_id",
+        back_populates="appointment",
+        uselist=False,
+        order_by="desc(AppointmentFollowUp.created_at)",
     )
 
 

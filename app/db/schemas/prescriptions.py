@@ -3,6 +3,7 @@ from datetime import datetime, date, time
 from typing import Optional, List
 from app.Enum.PrescriptionStatus import PrescriptionStatus
 from app.Enum.FollowupDuration import FollowupDuration
+from .followups import FollowUpResponse
 
 
 class PrescriptionMedicationBase(BaseModel):
@@ -52,7 +53,7 @@ class PrescriptionBase(BaseModel):
     diagnosis: Optional[str] = None
     notes: Optional[str] = None
     status: PrescriptionStatus = PrescriptionStatus.DRAFT
-    follow_up: bool = False
+    follow_up_required: bool = False
     follow_up_date: Optional[date] = None
     follow_up_time: Optional[time] = None
     follow_up_note: Optional[str] = None
@@ -71,7 +72,7 @@ class PrescriptionUpdate(BaseModel):
     diagnosis: Optional[str] = None
     notes: Optional[str] = None
     status: Optional[PrescriptionStatus] = None
-    follow_up: Optional[bool] = None
+    follow_up_required: Optional[bool] = None
     follow_up_date: Optional[date] = None
     follow_up_time: Optional[time] = None
     follow_up_note: Optional[str] = None
@@ -84,6 +85,7 @@ class PrescriptionResponse(PrescriptionBase):
     created_at: datetime
     updated_at: datetime
     medications: List[PrescriptionMedicationResponse] = []
+    followup: Optional[FollowUpResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
 

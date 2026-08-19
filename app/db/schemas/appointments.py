@@ -7,6 +7,7 @@ from app.Enum.AppointmentDuration import AppointmentDuration
 from app.Enum.PatientVisitPaymentMode import PatientVisitPaymentMode
 from app.Enum.PatientVisitPaymentStatus import PatientVisitPaymentStatus
 from app.db.schemas.patient import PatientAppointmentResponse, PatientVisitCreate, PatientVisitResponse
+from app.db.schemas.followups import FollowUpResponse
 
            
 class AppointmentBase(BaseModel):
@@ -66,5 +67,6 @@ class AppointmentResponse(AppointmentBase):
 
     patient_appointments: List[PatientAppointmentResponse] = []
     patient_visits: List[PatientVisitResponse] = []
+    followup: Optional[FollowUpResponse] = None
 
     model_config = ConfigDict(from_attributes=True)

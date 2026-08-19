@@ -107,4 +107,9 @@ from .prescriptions import (
     MedicationDropdownResponse,
     FollowupDurationOptionResponse,
 )
+from .followups import (
+    FollowUpResponse,
+    RescheduleFollowupRequest,
+)
+
 from .response import APIResponse

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Appointment import Appointment
     from app.model.Prescription import Prescription
+    from app.model.FollowUp import FollowUp
 
 class Patient(Base):
     __tablename__ = "patients"
@@ -58,6 +59,7 @@ class Patient(Base):
     patient_appointments: Mapped[list["PatientAppointment"]] = relationship("PatientAppointment", back_populates="patient", cascade="all, delete-orphan")
     patient_visits: Mapped[list["PatientVisit"]] = relationship("PatientVisit", back_populates="patient", cascade="all, delete-orphan")
     prescriptions: Mapped[list["Prescription"]] = relationship("Prescription", back_populates="patient", cascade="all, delete-orphan")
+    followups: Mapped[list["FollowUp"]] = relationship("FollowUp", foreign_keys="FollowUp.patient_id", back_populates="patient", cascade="all, delete-orphan")
 
 
 class Note(Base):
