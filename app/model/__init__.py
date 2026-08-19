@@ -13,6 +13,7 @@ from app.model.MasterOption import Master
 from app.model.Product import Product
 from app.model.Inventory import Inventory, Batch
 from app.model.Prescription import Prescription, PrescriptionMedication
+from app.model.FollowUp import FollowUp, PrescriptionFollowUp, AppointmentFollowUp
 
 __all__ = [
     "User", 
@@ -41,4 +42,7 @@ __all__ = [
     "Batch",
     "Prescription",
     "PrescriptionMedication",
+    "FollowUp",
+    "PrescriptionFollowUp",
+    "AppointmentFollowUp",
 ]

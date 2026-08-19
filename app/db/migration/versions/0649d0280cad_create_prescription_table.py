@@ -35,7 +35,7 @@ def upgrade() -> None:
         # sa.Column('amount_to_pay', sa.Numeric(10, 2), nullable=False, server_default='0.00'),
         # sa.Column('payment_method', sa.String(50), nullable=True),
         # sa.Column('payment_status', sa.String(50), nullable=False, server_default='pending'),
-        sa.Column('follow_up', sa.Boolean(), nullable=False, server_default=sa.text('0')),
+        sa.Column('follow_up_required', sa.Boolean(), nullable=False, server_default=sa.text('0')),
         sa.Column('follow_up_date', sa.Date(), nullable=True),
         sa.Column('follow_up_time', sa.Time(), nullable=True),
         sa.Column('follow_up_note', sa.String(255), nullable=True),

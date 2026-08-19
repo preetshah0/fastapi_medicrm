@@ -1,4 +1,5 @@
 import uuid
+from datetime import time
 from app.model.Inventory import Inventory
 from app.model.Product import Product
 from typing import Optional, List
@@ -23,6 +24,16 @@ from app.model.Prescription import Prescription
 from app.model.Prescription import PrescriptionMedication
 
 
+from app.model.FollowUp import PrescriptionFollowUp, FollowUp
+from app.Enum.FollowupStatus import FollowupStatus
+from app.Enum.FollowupVisitStatus import FollowupVisitStatus
+from app.services.followup_service import (
+    mark_overdue_followups,
+    update_followup_on_edit,
+    calculate_followup_end_time,
+)
+
+
 def refrence_code_generator(id: str = None) -> str:
     val = id or str(uuid.uuid4())
     return val.split("-")[0].upper()[:8]
@@ -32,6 +43,13 @@ def create_prescription(
     db: Session,
     prescription_data: PrescriptionCreate
 ):
+
+    duration_val = (
+        prescription_data.followup_duration.value 
+        if prescription_data.followup_duration 
+        else None
+    )
+
     db_prescription = Prescription(
         branch_id=prescription_data.branch_id,
         patient_id=prescription_data.patient_id,
@@ -40,11 +58,11 @@ def create_prescription(
         diagnosis=prescription_data.diagnosis,
         notes=prescription_data.notes,
         status=PrescriptionStatus.DRAFT.value,
-        follow_up=prescription_data.follow_up,
+        follow_up_required=prescription_data.follow_up_required,
         follow_up_date=prescription_data.follow_up_date,
         follow_up_time=prescription_data.follow_up_time,
         follow_up_note=prescription_data.follow_up_note,
-        followup_duration=prescription_data.followup_duration.value if prescription_data.followup_duration else None,
+        followup_duration=duration_val,
     )
     db.add(db_prescription)
     db.flush()
@@ -67,6 +85,27 @@ def create_prescription(
                 )
             )
         db.add_all(medications_to_add)
+
+   
+    if prescription_data.follow_up_required == True:
+        branch = db.query(Branch).filter(Branch.id == prescription_data.branch_id).first()
+        org_id = branch.organization_id if branch else None
+
+        db_followup = PrescriptionFollowUp(
+            organization_id=org_id,
+            branch_id=prescription_data.branch_id,
+            patient_id=prescription_data.patient_id,
+            doctor_id=prescription_data.doctor_id,
+            prescription_id=db_prescription.id,
+            followable_type="prescription",
+            followable_id=db_prescription.id,
+            followup_date=prescription_data.follow_up_date,
+            followup_time=prescription_data.follow_up_time,
+            followup_duration=duration_val or 30,
+            status=FollowupStatus.SCHEDULED.value,
+            visited_status=FollowupVisitStatus.PENDING.value,
+        )
+        db.add(db_followup)
 
     db.commit()
     db.refresh(db_prescription)
@@ -144,12 +183,52 @@ def update_prescription(
         .first()
     )
 
-
+    if not db_prescription:
+        return None
 
     update_data = prescription_data.model_dump(exclude_unset=True, mode="json")
     for key, value in update_data.items():
         if hasattr(db_prescription, key):
             setattr(db_prescription, key, value)
+
+    mark_overdue_followups(db)
+
+    existing_followup = (
+        db.query(PrescriptionFollowUp)
+        .filter(PrescriptionFollowUp.prescription_id == prescription_id)
+        .order_by(PrescriptionFollowUp.created_at.desc())
+        .first()
+    )
+
+    if db_prescription.follow_up_required == True:
+        duration_val = db_prescription.followup_duration or 30
+        if existing_followup:
+            update_followup_on_edit(
+                db=db,
+                followup=existing_followup,
+                new_date=db_prescription.follow_up_date,
+                new_time=db_prescription.follow_up_time,
+                new_duration=duration_val,
+                patient_id=db_prescription.patient_id,
+                doctor_id=db_prescription.doctor_id,
+                branch_id=db_prescription.branch_id,
+            )
+        else:
+            db_followup = PrescriptionFollowUp(
+                organization_id=organization_id,
+                branch_id=db_prescription.branch_id,
+                patient_id=db_prescription.patient_id,
+                doctor_id=db_prescription.doctor_id,
+                prescription_id=db_prescription.id,
+                followable_type="prescription",
+                followable_id=db_prescription.id,
+                followup_date=db_prescription.follow_up_date,
+                followup_time=db_prescription.follow_up_time,
+                followup_duration=duration_val,
+                status=FollowupStatus.SCHEDULED.value,
+                visited_status=FollowupVisitStatus.PENDING.value,
+            )
+            db.add(db_followup)
 
     db.commit()
     db.refresh(db_prescription)
@@ -298,7 +377,32 @@ def toggle_followup(db: Session, prescription_id: str, organization_id: str):
     if not db_prescription:
         return None
 
-    db_prescription.follow_up = not db_prescription.follow_up
+    db_prescription.follow_up_required = not db_prescription.follow_up_required
+
+    existing_followup = (
+        db.query(PrescriptionFollowUp)
+        .filter(PrescriptionFollowUp.prescription_id == prescription_id)
+        .first()
+    )
+
+    if db_prescription.follow_up_required:
+        if not existing_followup:
+            db_followup = PrescriptionFollowUp(
+                organization_id=organization_id,
+                branch_id=db_prescription.branch_id,
+                patient_id=db_prescription.patient_id,
+                doctor_id=db_prescription.doctor_id,
+                prescription_id=db_prescription.id,
+                followable_type="prescription",
+                followable_id=db_prescription.id,
+                followup_date=db_prescription.follow_up_date,
+                followup_time=db_prescription.follow_up_time,
+                followup_duration=db_prescription.followup_duration or 30,
+                status=FollowupStatus.SCHEDULED.value,
+                visited_status=FollowupVisitStatus.PENDING.value,
+            )
+            db.add(db_followup)
+
     db.commit()
     db.refresh(db_prescription)
     return db_prescription
@@ -350,3 +454,10 @@ def get_followup_duration_types():
         )
         for duration in FollowupDuration
     ]
+
+
+def calculate_followup_end_time_controller(
+    followup_time: Optional[time],
+    followup_duration: Optional[int]
+) -> Optional[time]:
+    return calculate_followup_end_time(followup_time, followup_duration)

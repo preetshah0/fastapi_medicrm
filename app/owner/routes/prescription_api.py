@@ -1,4 +1,5 @@
 from typing import List, Optional
+from datetime import time
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
@@ -32,6 +33,7 @@ from app.owner.controller.prescription import (
     toggle_followup,
     get_medication_names,
     get_followup_duration_types,
+    calculate_followup_end_time_controller,
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
 
@@ -212,3 +214,15 @@ def get_medication_names_route(
 def get_followup_duration_types_route():
     options = get_followup_duration_types()
     return success_response("Follow-up duration options fetched successfully", options)
+
+
+@router.get("/calculate-followup-end-time", response_model=APIResponse[Optional[time]])
+def calculate_followup_end_time_route(
+    followup_time: Optional[time] = None,
+    followup_duration: Optional[int] = None,
+):
+    result = calculate_followup_end_time_controller(followup_time, followup_duration)
+    if result is None:
+        return error_response("Both followup_time and followup_duration are required", data=None)
+
+    return success_response("Follow-up end time calculated successfully", result)
