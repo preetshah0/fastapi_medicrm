@@ -47,7 +47,7 @@ class Appointment(Base):
         String(255), nullable=False, server_default=AppointmentType.GENERAL_CONSULTATION.value
     )
     duration_minutes: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default=str(AppointmentDuration.THIRTY.value)
+        Integer, nullable=False, default=AppointmentDuration.THIRTY.value
     )
     notes: Mapped[str | None] = mapped_column(String(255), nullable=True)
 

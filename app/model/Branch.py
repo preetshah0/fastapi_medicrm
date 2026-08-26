@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from app.model.Inventory import Inventory
     from app.model.Prescription import Prescription
     from app.model.FollowUp import FollowUp
+    from app.model.Sale import Sale
 
 
 class BranchUser(Base):
@@ -159,6 +160,13 @@ class Branch(Base):
     followups: Mapped[list["FollowUp"]] = relationship(
         "FollowUp",
         foreign_keys="FollowUp.branch_id",
+        back_populates="branch",
+        cascade="all, delete-orphan"
+    )
+
+    sales: Mapped[list["Sale"]] = relationship(
+        "Sale",
+        foreign_keys="Sale.branch_id",
         back_populates="branch",
         cascade="all, delete-orphan"
     )

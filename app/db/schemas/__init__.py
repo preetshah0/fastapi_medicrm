@@ -32,6 +32,7 @@ from .medical_reps import (
     MedicalRepVisitBase,
     MedicalRepVisitCreate,
     MedicalRepVisitResponse,
+    MedicalRepVisitResponse,
 )
 from .suppliers import (
     SupplierBase,
@@ -110,6 +111,17 @@ from .prescriptions import (
 from .followups import (
     FollowUpResponse,
     RescheduleFollowupRequest,
+)
+from .sales import (
+    SaleItemBase,
+    SaleItemCreate,
+    SaleItemUpdate,
+    SaleItemResponse,
+    SaleBase,
+    SaleCreate,
+    SaleUpdate,
+    DispenseSaleRequest,
+    SaleResponse,
 )
 
 from .response import APIResponse

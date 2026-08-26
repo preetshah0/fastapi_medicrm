@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from app.model.Product import Product
     from app.model.Supplier import Supplier
     from app.model.Prescription import PrescriptionMedication
+    from app.model.Sale import SaleItem
 
 
 class Inventory(Base):
@@ -75,6 +76,11 @@ class Inventory(Base):
     prescription_medications: Mapped[List["PrescriptionMedication"]] = relationship(
         "PrescriptionMedication",
         foreign_keys="[PrescriptionMedication.inventory_id]",
+        back_populates="inventory",
+    )
+    sales_items: Mapped[List["SaleItem"]] = relationship(
+        "SaleItem",
+        foreign_keys="[SaleItem.inventory_id]",
         back_populates="inventory",
     )
 
@@ -142,5 +148,10 @@ class Batch(Base):
     prescription_medications: Mapped[List["PrescriptionMedication"]] = relationship(
         "PrescriptionMedication",
         foreign_keys="[PrescriptionMedication.inventory_batch_id]",
+        back_populates="inventory_batch",
+    )
+    sales_items: Mapped[List["SaleItem"]] = relationship(
+        "SaleItem",
+        foreign_keys="[SaleItem.inventory_batch_id]",
         back_populates="inventory_batch",
     )
