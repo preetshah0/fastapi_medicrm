@@ -12,6 +12,7 @@ from app.owner.routes.product_api import router as product_router
 from app.owner.routes.inventory_api import router as inventory_router
 from app.owner.routes.prescription_api import router as prescription_router
 from app.owner.routes.followup_api import router as followup_router
+from app.owner.routes.sales_api import router as sales_router
 
 router = APIRouter()
 
@@ -30,5 +31,7 @@ router.include_router(product_router)
 router.include_router(inventory_router)
 router.include_router(prescription_router)
 router.include_router(followup_router)
+router.include_router(sales_router)
+
 
 

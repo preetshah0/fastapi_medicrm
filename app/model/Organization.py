@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from app.model.MasterOption import Master
     from app.model.Inventory import Inventory
     from app.model.FollowUp import FollowUp
+    from app.model.Sale import Sale
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -142,6 +143,14 @@ class Organization(Base):
     followups: Mapped[list["FollowUp"]] = relationship(
         "FollowUp",
         foreign_keys="FollowUp.organization_id",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    # --- hasMany Sales ---
+    sales: Mapped[list["Sale"]] = relationship(
+        "Sale",
+        foreign_keys="Sale.organization_id",
         back_populates="organization",
         cascade="all, delete-orphan"
     )

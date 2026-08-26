@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.schemas.response import APIResponse
-from app.db.schemas.prescriptions import (
+from app.db.schemas import (
     PrescriptionCreate,
     PrescriptionUpdate,
     PrescriptionResponse,

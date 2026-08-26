@@ -14,6 +14,7 @@ from app.model.Product import Product
 from app.model.Inventory import Inventory, Batch
 from app.model.Prescription import Prescription, PrescriptionMedication
 from app.model.FollowUp import FollowUp, PrescriptionFollowUp, AppointmentFollowUp
+from app.model.Sale import Sale, SaleItem
 
 __all__ = [
     "User", 
@@ -45,4 +46,6 @@ __all__ = [
     "FollowUp",
     "PrescriptionFollowUp",
     "AppointmentFollowUp",
+    "Sale",
+    "SaleItem",
 ]

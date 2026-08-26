@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
+from app.core.redis import limiter
 from app.db.database import get_db
 from app.db.schemas.auth import (
     LogoutRequest,
@@ -19,12 +20,15 @@ router = APIRouter(prefix="/admin/auth", tags=["admin_auth"])
 
 
 @router.post('/login', response_model=AdminLoginResponse)
+@limiter.limit("10/minute")
 def login(
+    request: Request,
     email: str,
     password: str,
     db: Session = Depends(get_db),
 ):
     return login_controller(db, email, password)
+
 
 
 @router.post('/refresh', response_model=TokenRefreshResponse)

@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.model.ProductCategory import ProductCategory
     from app.model.MasterOption import Master
     from app.model.Inventory import Inventory, Batch
+    from app.model.Sale import SaleItem
 
 
 class Product(Base):
@@ -51,3 +52,4 @@ class Product(Base):
 
     inventory: Mapped[Optional["Inventory"]] = relationship("Inventory", back_populates="product", uselist=False, cascade="all, delete-orphan")
     batches: Mapped[list["Batch"]] = relationship("Batch", back_populates="product", cascade="all, delete-orphan")
+    sales_items: Mapped[list["SaleItem"]] = relationship("SaleItem", back_populates="product", cascade="all, delete-orphan")

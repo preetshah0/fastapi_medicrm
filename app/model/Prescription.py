@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from app.model.User import User
     from app.model.Inventory import Inventory, Batch
     from app.model.FollowUp import FollowUp
+    from app.model.Sale import Sale
 
 
 class Prescription(Base):
@@ -67,6 +68,7 @@ class Prescription(Base):
         uselist=False,
         order_by="desc(PrescriptionFollowUp.created_at)",
     )
+    sales: Mapped[list["Sale"]] = relationship("Sale", back_populates="prescription")
 
 
 class PrescriptionMedication(Base):
