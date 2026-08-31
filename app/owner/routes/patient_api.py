@@ -42,8 +42,6 @@ from app.owner.controller.patient import (
     get_patient_lab_referral_by_id,
     get_patient_lab_referrals_by_patient,
     get_patient_lab_referrals_by_organization,
-    update_patient_lab_referral,
-    delete_patient_lab_referral,
     get_branch_dropdown,
     get_user_dropdown,
     get_lab_dropdown,
