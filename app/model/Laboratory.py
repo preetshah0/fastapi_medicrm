@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, date, time
 from sqlalchemy import String, ForeignKey, text, DateTime, Date, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from app.db.database import Base
 
 from app.Enum.LaboratoryFacilityType import LaboratoryFacilityType
@@ -12,6 +12,8 @@ from app.Enum.LaboratoryStatus import LaboratoryStatus
 if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Branch import Branch
+    from app.model.MasterOption import Master
+    from app.model.Patient import PatientLabReferral
 
 class Laboratory(Base):
     __tablename__ = "laboratories"
@@ -38,10 +40,11 @@ class Laboratory(Base):
         nullable=False,
         server_default=LaboratoryFacilityType.INTERNAL.value
     )
-    lab_type: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-        server_default=LaboratoryLabType.CLINIC.value
+    lab_type: Mapped[str] = mapped_column(String(255),nullable=True)
+    lab_type_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("master_options.id", ondelete="SET NULL"),
+        nullable=False
     )
     address: Mapped[str] = mapped_column(String(255), nullable=True)
     city: Mapped[str] = mapped_column(String(255), nullable=True)
@@ -59,7 +62,9 @@ class Laboratory(Base):
 
     organization: Mapped["Organization"] = relationship("Organization", foreign_keys=[organization_id])
     branch: Mapped["Branch"] = relationship("Branch", foreign_keys=[branch_id])
+    master_lab_type: Mapped[Optional["Master"]] = relationship("Master", foreign_keys=[lab_type_id], back_populates="laboratories")
     visits: Mapped[List["LabVisit"]] = relationship("LabVisit", back_populates="laboratory", cascade="all, delete-orphan")
+    lab_referrals: Mapped[List["PatientLabReferral"]] = relationship("PatientLabReferral", foreign_keys="PatientLabReferral.lab_id", back_populates="laboratory", cascade="all, delete-orphan")
 
 
 class LabVisit(Base):

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from app.model.Role import Roles
     from app.model.Branch import Branch
     from app.model.MedicalRep import MedicalReps
-    from app.model.Patient import Patient
+    from app.model.Patient import Patient, PatientLabReferral
     from app.model.ProductCategory import ProductCategory
     from app.model.Product import Product
     from app.model.MasterOption import Master
@@ -151,6 +151,14 @@ class Organization(Base):
     sales: Mapped[list["Sale"]] = relationship(
         "Sale",
         foreign_keys="Sale.organization_id",
+        back_populates="organization",
+        cascade="all, delete-orphan"
+    )
+
+    # --- hasMany Lab Referrals ---
+    lab_referrals: Mapped[list["PatientLabReferral"]] = relationship(
+        "PatientLabReferral",
+        foreign_keys="PatientLabReferral.organization_id",
         back_populates="organization",
         cascade="all, delete-orphan"
     )

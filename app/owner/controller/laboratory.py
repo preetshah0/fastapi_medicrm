@@ -1,7 +1,9 @@
+from app.Enum.MasterOptionType import MasterOptionType
+from app.owner.controller.masteroption import get_master_option_dropdown
 from sqlalchemy.orm import Session
 from app.model.Laboratory import Laboratory, LabVisit
 from app.model.Branch import Branch
-from app.db.schemas.labs import LabCreate, LabUpdate, LabVisitCreate
+from app.db.schemas.labs import LabCreate, LabUpdate, LabVisitCreate, LabEnumResponse, LabDropdownResponse
 from app.Enum.LaboratoryFacilityType import LaboratoryFacilityType
 
 def create_laboratory(db: Session, branch_id: str, lab_data: LabCreate):
@@ -14,17 +16,17 @@ def create_laboratory(db: Session, branch_id: str, lab_data: LabCreate):
         branch_id=branch_id,
         name=lab_data.name,
         contact_person=lab_data.contact_person,
-        facility_type=lab_data.facility_type.value,
-        lab_type=lab_data.lab_type.value,
+        facility_type=lab_data.facility_type.value if hasattr(lab_data.facility_type, "value") else lab_data.facility_type,
+        lab_type_id=lab_data.lab_type_id,
+        lab_type=lab_data.lab_type,
         address=lab_data.address,
         city=lab_data.city,
         pincode=lab_data.pincode,
         phone_number=lab_data.phone_number,
         email=lab_data.email,
         notes=lab_data.notes,
-        status=lab_data.status.value,
+        status=lab_data.status.value
     )
-    db.add(laboratory)
     db.commit()
     db.refresh(laboratory)
     return laboratory
@@ -34,6 +36,17 @@ def get_laboratories_by_branch(db: Session, branch_id: str):
 
 def get_laboratory(db: Session, lab_id: str):
     return db.query(Laboratory).filter(Laboratory.id == lab_id).first()
+
+def get_lab_type_dropdown(db: Session, organization_id: str):
+    return get_master_option_dropdown(db, organization_id, MasterOptionType.LAB_TYPE)
+
+
+def get_laboratory_facility_type():
+    return [
+        LabEnumResponse(value=item.value, label=item.label)
+        for item in LaboratoryFacilityType
+    ]
+
 
 def update_laboratory(db: Session, lab_id: str, lab_data: LabUpdate):
     db_lab = get_laboratory(db, lab_id)

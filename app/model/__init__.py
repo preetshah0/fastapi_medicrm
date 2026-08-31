@@ -6,7 +6,7 @@ from app.model.MedicalRep import MedicalReps, MedicalRepVisit
 from app.model.Branch import Branch, BranchUser
 from app.model.Supplier import Supplier, SupplierVisit
 from app.model.Laboratory import Laboratory, LabVisit
-from app.model.Patient import Patient, Note, Report, PatientAppointment, PatientVisit
+from app.model.Patient import Patient, Note, Report, PatientAppointment, PatientVisit, PatientLabReferral, TestRequired
 from app.model.Appointment import Appointment
 from app.model.ProductCategory import ProductCategory
 from app.model.MasterOption import Master
@@ -36,6 +36,8 @@ __all__ = [
     "Appointment",
     "PatientAppointment",
     "PatientVisit",
+    "PatientLabReferral",
+    "TestRequired",
     "ProductCategory",
     "Master",
     "Product",

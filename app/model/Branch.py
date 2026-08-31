@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from app.model.Prescription import Prescription
     from app.model.FollowUp import FollowUp
     from app.model.Sale import Sale
+    from app.model.Patient import PatientLabReferral
 
 
 class BranchUser(Base):
@@ -167,6 +168,13 @@ class Branch(Base):
     sales: Mapped[list["Sale"]] = relationship(
         "Sale",
         foreign_keys="Sale.branch_id",
+        back_populates="branch",
+        cascade="all, delete-orphan"
+    )
+
+    lab_referrals: Mapped[list["PatientLabReferral"]] = relationship(
+        "PatientLabReferral",
+        foreign_keys="PatientLabReferral.branch_id",
         back_populates="branch",
         cascade="all, delete-orphan"
     )

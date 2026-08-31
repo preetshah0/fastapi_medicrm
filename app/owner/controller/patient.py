@@ -1,9 +1,19 @@
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
-from app.model.Patient import Patient, Note, Report
+from app.model.Patient import Patient, Note, Report, PatientLabReferral, TestRequired
 from app.model.Organization import Organization
 from app.model.User import User
-from app.db.schemas.patient import NoteCreate, NoteUpdate, ReportCreate, ReportUpdate, PatientCreate, PatientUpdate
+from app.model.Branch import Branch
+from app.model.Laboratory import Laboratory
+from app.Enum.LabReferralPriority import LabReferralPriority
+from app.Enum.LaboratoryFacilityType import LaboratoryFacilityType
+from app.db.schemas.patient import (
+    NoteCreate, NoteUpdate, ReportCreate, ReportUpdate, PatientCreate, PatientUpdate,
+    PatientLabReferralCreate, PatientLabReferralUpdate, ReportDropdownResponse, LabReferralPriorityOptionResponse
+)
+from app.db.schemas.branch import BranchDropdownResponse
+from app.db.schemas.user import UserDropdownResponse
+from app.db.schemas.labs import LabDropdownResponse
 from app.utils.auth_utils import get_current_user_id
 
 
@@ -214,3 +224,124 @@ def delete_note(db: Session, note_id: str):
     db.delete(db_note)
     db.commit()
     return db_note
+
+
+def get_branch_dropdown(db: Session, organization_id: str):
+    results = (
+        db.query(Branch.id, Branch.branch_name)
+        .filter(Branch.organization_id == organization_id)
+        .all()
+    )
+    return [
+        BranchDropdownResponse(id=row.id, branch_name=row.branch_name)
+        for row in results
+    ]
+
+
+def get_priority_enum():
+    return [
+        LabReferralPriorityOptionResponse(value=item.value, label=item.label)
+        for item in LabReferralPriority
+    ]
+
+
+def get_report_dropdown(db: Session, patient_id: str):
+    results = (
+        db.query(Report.id, Report.report_type)
+        .filter(Report.patient_id == patient_id)
+        .all()
+    )
+    return [
+        ReportDropdownResponse(id=row.id, report_type=row.report_type)
+        for row in results
+    ]
+
+
+def get_user_dropdown(db: Session, organization_id: str):
+    results = (
+        db.query(User.id, User.name)
+        .filter(User.organization_id == organization_id)
+        .all()
+    )
+    return [
+        UserDropdownResponse(id=row.id, name=row.name)
+        for row in results
+    ]
+
+
+def get_lab_dropdown(db: Session, organization_id: str):
+    results = (
+        db.query(Laboratory.id, Laboratory.name)
+        .filter(
+            Laboratory.organization_id == organization_id,
+            Laboratory.facility_type == LaboratoryFacilityType.EXTERNAL.value
+        )
+        .all()
+    )
+    return [
+        LabDropdownResponse(id=row.id, name=row.name)
+        for row in results
+    ]
+
+
+def generate_lab_referral_ref_no(db: Session, patient_id: str) -> str:
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    patient_ref = patient.ref_code if (patient and patient.ref_code) else "PAT"
+
+    count = db.query(PatientLabReferral).filter(PatientLabReferral.patient_id == patient_id).count()
+    next_number = count + 1
+    return f"{patient_ref}-REF-{next_number}"
+
+
+def create_patient_lab_referral(db: Session, referral_data: PatientLabReferralCreate):
+    branch = db.query(Branch).filter(Branch.id == referral_data.branch_id).first()
+    doctor = db.query(User).filter(User.id == referral_data.doctor_id).first()
+
+    db_referral = PatientLabReferral(
+        organization_id=branch.organization_id,
+        branch_id=referral_data.branch_id,
+        doctor_id=referral_data.doctor_id,
+        patient_id=referral_data.patient_id,
+        ref_no=generate_lab_referral_ref_no(db, referral_data.patient_id),
+        referred_by=doctor.name if doctor else "Doctor",
+        clinical_notes=referral_data.clinical_notes,
+        report_id=referral_data.report_id,
+        special_instructions=referral_data.special_instructions,
+        lab_id=referral_data.lab_id,
+        priority=referral_data.priority.value,
+    )
+
+    db.add(db_referral)
+    db.flush()
+
+    if referral_data.tests_required:
+        tests_to_add = []
+        for test in referral_data.tests_required:
+            tests_to_add.append(
+                TestRequired(
+                    referral_id=db_referral.id,
+                    test_name=test.test_name,
+                    test_code=test.test_code,
+                    test_description=test.test_description,
+                    attachments=test.attachments,
+                )
+            )
+        db.add_all(tests_to_add)
+
+    db.commit()
+    db.refresh(db_referral)
+    return db_referral
+
+
+def get_patient_lab_referral_by_id(db: Session, referral_id: str):
+    return db.query(PatientLabReferral).filter(PatientLabReferral.id == referral_id).first()
+
+
+def get_patient_lab_referrals_by_patient(db: Session, patient_id: str):
+    return db.query(PatientLabReferral).filter(PatientLabReferral.patient_id == patient_id).all()
+
+
+def get_patient_lab_referrals_by_organization(db: Session, organization_id: str):
+    return db.query(PatientLabReferral).filter(PatientLabReferral.organization_id == organization_id).all()
+
+

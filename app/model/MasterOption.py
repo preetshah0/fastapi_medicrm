@@ -8,6 +8,7 @@ from app.db.database import Base
 if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Product import Product
+    from app.model.Laboratory import Laboratory
 
 
 class Master(Base):
@@ -29,6 +30,7 @@ class Master(Base):
     sizes: Mapped[list["Product"]] = relationship("Product", foreign_keys="Product.size_id", back_populates="size")
     outer_sizes: Mapped[list["Product"]] = relationship("Product", foreign_keys="Product.outer_size_id", back_populates="outer_size")
     base_units: Mapped[list["Product"]] = relationship("Product", foreign_keys="Product.base_unit_id", back_populates="base_unit")
+    laboratories: Mapped[list["Laboratory"]] = relationship("Laboratory", foreign_keys="Laboratory.lab_type_id", back_populates="master_lab_type")
 
     __table_args__ = (
         UniqueConstraint("organization_id", "type", "slug", name="uq_master_options_org_type_slug"),
