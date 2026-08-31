@@ -6,6 +6,7 @@ from app.Enum.PatientBloodGroup import PatientBloodGroup
 from app.Enum.PatientVisitPaymentMode import PatientVisitPaymentMode
 from app.Enum.PatientVisitPaymentStatus import PatientVisitPaymentStatus
 from app.Enum.AppointmentDuration import AppointmentDuration
+from app.Enum.LabReferralPriority import LabReferralPriority
 
 
 # -----------------
@@ -108,6 +109,84 @@ class PatientVisitResponse(BaseModel):
 
 
 # -----------------
+# Test Required Schemas
+# -----------------
+class TestRequiredBase(BaseModel):
+    test_name: str
+    test_code: str
+    test_description: Optional[str] = None
+    attachments: Optional[str] = None
+
+
+class TestRequiredCreate(TestRequiredBase):
+    referral_id: Optional[str] = None
+
+
+class TestRequiredUpdate(BaseModel):
+    test_name: Optional[str] = None
+    test_code: Optional[str] = None
+    test_description: Optional[str] = None
+    attachments: Optional[str] = None
+
+
+class TestRequiredResponse(TestRequiredBase):
+    id: str
+    referral_id: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# -----------------
+# Patient Lab Referral Schemas
+# -----------------
+class PatientLabReferralBase(BaseModel):
+    ref_no: str
+    referred_by: str
+    clinical_notes: Optional[str] = None
+    report_id: Optional[str] = None
+    special_instructions: Optional[str] = None
+    priority: LabReferralPriority = LabReferralPriority.LOW
+
+
+class PatientLabReferralCreate(PatientLabReferralBase):
+    organization_id: Optional[str] = None
+    branch_id: str
+    doctor_id: str
+    patient_id: str
+    lab_id: str
+    tests_required: List[TestRequiredCreate] = []
+
+
+class PatientLabReferralUpdate(BaseModel):
+    ref_no: Optional[str] = None
+    branch_id: Optional[str] = None
+    doctor_id: Optional[str] = None
+    referred_by: Optional[str] = None
+    clinical_notes: Optional[str] = None
+    report_id: Optional[str] = None
+    special_instructions: Optional[str] = None
+    lab_id: Optional[str] = None
+    priority: Optional[LabReferralPriority] = None
+    tests_required: Optional[List[TestRequiredCreate]] = None
+
+
+class PatientLabReferralResponse(PatientLabReferralBase):
+    id: str
+    organization_id: str
+    branch_id: str
+    doctor_id: str
+    patient_id: str
+    lab_id: str
+    created_at: datetime
+    updated_at: datetime
+    tests_required: List[TestRequiredResponse] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# -----------------
 # Patient Schemas
 # -----------------
 class PatientBase(BaseModel):
@@ -150,6 +229,7 @@ class PatientResponse(PatientBase):
     reports: List[ReportResponse] = []
     patient_appointments: List[PatientAppointmentResponse] = []
     patient_visits: List[PatientVisitResponse] = []
+    lab_referrals: List[PatientLabReferralResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -159,4 +239,16 @@ class PatientDropdownResponse(BaseModel):
     name: str
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ReportDropdownResponse(BaseModel):
+    id: str
+    report_type: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LabReferralPriorityOptionResponse(BaseModel):
+    value: str
+    label: str
 

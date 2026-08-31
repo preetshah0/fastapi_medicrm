@@ -10,7 +10,8 @@ class LabBase(BaseModel):
     name: str
     contact_person: str
     facility_type: LaboratoryFacilityType
-    lab_type: LaboratoryLabType
+    lab_type: Optional[str] = None
+    lab_type_id: Optional[str] = None
     address: str
     city: str
     pincode: str
@@ -25,7 +26,9 @@ class LabCreate(LabBase):
 class LabUpdate(BaseModel):
     name: Optional[str] = None
     contact_person: Optional[str] = None
-    lab_type: Optional[LaboratoryLabType] = None
+    facility_type: Optional[LaboratoryFacilityType] = None
+    lab_type: Optional[str] = None
+    lab_type_id: Optional[str] = None
     address: Optional[str] = None
     city: Optional[str] = None
     pincode: Optional[str] = None
@@ -40,6 +43,20 @@ class LabResponse(LabBase):
     branch_id: str
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LabEnumResponse(BaseModel):
+    value: str
+    label: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LabDropdownResponse(BaseModel):
+    id: str
+    name: str
 
     model_config = ConfigDict(from_attributes=True)
 

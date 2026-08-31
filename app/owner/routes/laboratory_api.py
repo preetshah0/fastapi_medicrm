@@ -6,9 +6,11 @@ from app.db.schemas.labs import (
     LabCreate,
     LabUpdate,
     LabResponse,
+    LabEnumResponse,
     LabVisitCreate,
     LabVisitResponse
 )
+from app.db.schemas.master_options import MasterOptionDropdownResponse
 from app.owner.controller.laboratory import (
     create_laboratory,
     update_laboratory,
@@ -16,11 +18,23 @@ from app.owner.controller.laboratory import (
     get_laboratory,
     get_laboratories_by_branch,
     create_lab_visit,
-    get_lab_visits
+    get_lab_visits,
+    get_lab_type_dropdown,
+    get_laboratory_facility_type,
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
 
 router = APIRouter(prefix="/owner/laboratories", tags=["laboratories"])
+
+@router.get("/facility-types", response_model=APIResponse[list[LabEnumResponse]])
+def get_laboratory_facility_type_route():
+    result = get_laboratory_facility_type()
+    return success_response("Laboratory facility types fetched successfully", result)
+
+@router.get("/lab-types/{organization_id}", response_model=APIResponse[list[MasterOptionDropdownResponse]])
+def get_lab_type_dropdown_route(organization_id: str, db: Session = Depends(get_db)):
+    result = get_lab_type_dropdown(db=db, organization_id=organization_id)
+    return success_response("Lab types fetched successfully", result)
 
 @router.post("/create/{branch_id}", response_model=APIResponse[LabResponse])
 def create_laboratory_route(branch_id: str, payload: LabCreate, db: Session = Depends(get_db)):

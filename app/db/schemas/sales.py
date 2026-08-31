@@ -59,9 +59,9 @@ class SaleBase(BaseModel):
     discount_amount: float = Field(ge=0.0)
     sub_total: float = Field(ge=0.0)
     tax_amount: float = Field(ge=0.0)
-    payment_status: Optional[SalePaymentStatus] = SalePaymentStatus.UNPAID
+    payment_status: Optional[SalePaymentStatus] = SalePaymentStatus.PENDING
     payment_method: Optional[SalePaymentMethod] = None
-    sales_status: SalesStatus = SalesStatus.DRAFT
+    sales_status: SalesStatus = SalesStatus.PENDING
     sales_type: SaleType
 
 

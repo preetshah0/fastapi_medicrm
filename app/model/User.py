@@ -10,7 +10,7 @@ from app.Enum.UserStatus import UserStatus
 if TYPE_CHECKING:
     from app.model.Organization import Organization
     from app.model.Branch import BranchUser
-    from app.model.Patient import Patient, Note
+    from app.model.Patient import Patient, Note, PatientLabReferral
     from app.model.Appointment import Appointment
     from app.model.Role import Roles
     from app.model.UserRefreshToken import UserRefreshToken
@@ -102,5 +102,12 @@ class User(Base):
         "FollowUp",
         back_populates="doctor",
         foreign_keys="FollowUp.doctor_id",
+        cascade="all, delete-orphan",
+    )
+
+    doctor_lab_referrals: Mapped[list["PatientLabReferral"]] = relationship(
+        "PatientLabReferral",
+        back_populates="doctor",
+        foreign_keys="PatientLabReferral.doctor_id",
         cascade="all, delete-orphan",
     )

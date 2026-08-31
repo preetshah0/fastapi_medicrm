@@ -6,8 +6,19 @@ from app.db.schemas import APIResponse
 from app.db.schemas.patient import (
     NoteCreate, NoteUpdate, NoteResponse,
     ReportCreate, ReportUpdate, ReportResponse,
-    PatientCreate, PatientUpdate, PatientResponse
+    PatientCreate, PatientUpdate, PatientResponse,
+    PatientLabReferralCreate, PatientLabReferralUpdate, PatientLabReferralResponse,
+    ReportDropdownResponse, LabReferralPriorityOptionResponse
 )
+from app.db.schemas.branch import BranchDropdownResponse
+from app.db.schemas.user import UserDropdownResponse
+from app.db.schemas.labs import LabDropdownResponse
+from app.model.Patient import Patient, Report
+from app.model.Branch import Branch
+from app.model.User import User
+from app.model.Laboratory import Laboratory
+from app.model.Organization import Organization
+from app.Enum.LaboratoryFacilityType import LaboratoryFacilityType
 from app.owner.controller.patient import (
     create_patient,
     get_patient,
@@ -27,6 +38,17 @@ from app.owner.controller.patient import (
     get_reports_by_patient,
     update_report,
     delete_report,
+    create_patient_lab_referral,
+    get_patient_lab_referral_by_id,
+    get_patient_lab_referrals_by_patient,
+    get_patient_lab_referrals_by_organization,
+    update_patient_lab_referral,
+    delete_patient_lab_referral,
+    get_branch_dropdown,
+    get_user_dropdown,
+    get_lab_dropdown,
+    get_report_dropdown,
+    get_priority_enum,
 )
 from app.utils.auth_utils import get_current_user_id
 from app.utils.ApiResponse import success_response, not_found_response, error_response
@@ -260,3 +282,147 @@ def delete_report_route(
         return not_found_response("Report not found", data="")
 
     return success_response("Report deleted successfully", data="")
+
+
+lab_referral_router = APIRouter(prefix="/owner/lab-referrals", tags=["lab-referrals"])
+
+
+@lab_referral_router.post("/create", response_model=APIResponse[PatientLabReferralResponse])
+def create_lab_referral_route(
+    payload: PatientLabReferralCreate,
+    db: Session = Depends(get_db),
+):
+    patient = db.query(Patient).filter(Patient.id == payload.patient_id).first()
+    if not patient:
+        return not_found_response("Patient not found", data="")
+
+    branch = db.query(Branch).filter(Branch.id == payload.branch_id).first()
+    if not branch:
+        return not_found_response("Branch not found", data="")
+
+    doctor = db.query(User).filter(User.id == payload.doctor_id).first()
+    if not doctor:
+        return not_found_response("Doctor not found", data="")
+
+    lab = db.query(Laboratory).filter(Laboratory.id == payload.lab_id).first()
+    if not lab:
+        return not_found_response("Laboratory not found", data="")
+    if lab.facility_type != LaboratoryFacilityType.EXTERNAL.value:
+        return error_response("Referrals can only be made to external laboratories", data="")
+
+    if payload.report_id:
+        report = db.query(Report).filter(Report.id == payload.report_id).first()
+        if not report:
+            return not_found_response("Patient report not found", data="")
+
+    if not payload.tests_required or len(payload.tests_required) == 0:
+        return error_response("At least one required test must be provided for referral", data="")
+
+    for test in payload.tests_required:
+        if not test.test_name or not test.test_name.strip():
+            return error_response("Test name cannot be empty", data="")
+        if not test.test_code or not test.test_code.strip():
+            return error_response("Test code cannot be empty", data="")
+
+    result = create_patient_lab_referral(db=db, referral_data=payload)
+    if not result:
+        return error_response("Failed to create lab referral", data="")
+
+    return success_response("Lab referral created successfully", result)
+
+
+@lab_referral_router.get("/priorities", response_model=APIResponse[list[LabReferralPriorityOptionResponse]])
+def get_priority_enum_route():
+    result = get_priority_enum()
+    return success_response("Lab referral priority types fetched successfully", result)
+
+
+@lab_referral_router.get("/dropdown/branches/{organization_id}", response_model=APIResponse[list[BranchDropdownResponse]])
+def get_branch_dropdown_route(
+    organization_id: str,
+    db: Session = Depends(get_db),
+):
+    org = db.query(Organization).filter(Organization.id == organization_id).first()
+    if not org:
+        return not_found_response("Organization not found", data="")
+
+    result = get_branch_dropdown(db=db, organization_id=organization_id)
+    return success_response("Branches dropdown fetched successfully", result)
+
+
+@lab_referral_router.get("/dropdown/doctors/{organization_id}", response_model=APIResponse[list[UserDropdownResponse]])
+def get_user_dropdown_route(
+    organization_id: str,
+    db: Session = Depends(get_db),
+):
+    org = db.query(Organization).filter(Organization.id == organization_id).first()
+    if not org:
+        return not_found_response("Organization not found", data="")
+
+    result = get_user_dropdown(db=db, organization_id=organization_id)
+    return success_response("Doctors dropdown fetched successfully", result)
+
+
+@lab_referral_router.get("/dropdown/labs/{organization_id}", response_model=APIResponse[list[LabDropdownResponse]])
+def get_lab_dropdown_route(
+    organization_id: str,
+    db: Session = Depends(get_db),
+):
+    org = db.query(Organization).filter(Organization.id == organization_id).first()
+    if not org:
+        return not_found_response("Organization not found", data="")
+
+    result = get_lab_dropdown(db=db, organization_id=organization_id)
+    return success_response("External laboratories dropdown fetched successfully", result)
+
+
+@lab_referral_router.get("/dropdown/reports/{patient_id}", response_model=APIResponse[list[ReportDropdownResponse]])
+def get_report_dropdown_route(
+    patient_id: str,
+    db: Session = Depends(get_db),
+):
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        return not_found_response("Patient not found", data="")
+
+    result = get_report_dropdown(db=db, patient_id=patient_id)
+    return success_response("Reports dropdown fetched successfully", result)
+
+
+@lab_referral_router.get("/{referral_id}", response_model=APIResponse[PatientLabReferralResponse])
+def get_lab_referral_route(
+    referral_id: str,
+    db: Session = Depends(get_db),
+):
+    result = get_patient_lab_referral_by_id(db=db, referral_id=referral_id)
+    if not result:
+        return not_found_response("Lab referral not found", data="")
+
+    return success_response("Lab referral fetched successfully", result)
+
+
+@lab_referral_router.get("/patient/{patient_id}", response_model=APIResponse[list[PatientLabReferralResponse]])
+def get_patient_lab_referrals_route(
+    patient_id: str,
+    db: Session = Depends(get_db),
+):
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        return not_found_response("Patient not found", data="")
+
+    result = get_patient_lab_referrals_by_patient(db=db, patient_id=patient_id)
+    return success_response("Patient lab referrals fetched successfully", result)
+
+
+@lab_referral_router.get("/organization/{organization_id}", response_model=APIResponse[list[PatientLabReferralResponse]])
+def get_organization_lab_referrals_route(
+    organization_id: str,
+    db: Session = Depends(get_db),
+):
+    org = db.query(Organization).filter(Organization.id == organization_id).first()
+    if not org:
+        return not_found_response("Organization not found", data="")
+
+    result = get_patient_lab_referrals_by_organization(db=db, organization_id=organization_id)
+    return success_response("Organization lab referrals fetched successfully", result)
+

@@ -9,11 +9,14 @@ from app.Enum.PatientBloodGroup import PatientBloodGroup
 from app.Enum.PatientVisitPaymentMode import PatientVisitPaymentMode
 from app.Enum.PatientVisitPaymentStatus import PatientVisitPaymentStatus
 from app.Enum.AppointmentDuration import AppointmentDuration
+from app.Enum.LabReferralPriority import LabReferralPriority
 
 
 if TYPE_CHECKING:
     from app.model.User import User
     from app.model.Organization import Organization
+    from app.model.Branch import Branch
+    from app.model.Laboratory import Laboratory
     from app.model.Appointment import Appointment
     from app.model.Prescription import Prescription
     from app.model.FollowUp import FollowUp
@@ -62,6 +65,7 @@ class Patient(Base):
     prescriptions: Mapped[list["Prescription"]] = relationship("Prescription", back_populates="patient", cascade="all, delete-orphan")
     followups: Mapped[list["FollowUp"]] = relationship("FollowUp", foreign_keys="FollowUp.patient_id", back_populates="patient", cascade="all, delete-orphan")
     sales: Mapped[list["Sale"]] = relationship("Sale", foreign_keys="Sale.patient_id", back_populates="patient", cascade="all, delete-orphan")
+    lab_referrals: Mapped[list["PatientLabReferral"]] = relationship("PatientLabReferral", back_populates="patient", cascade="all, delete-orphan")
 
 
 class Note(Base):
@@ -116,6 +120,7 @@ class Report(Base):
 
     # Relationships
     patient: Mapped["Patient"] = relationship("Patient", back_populates="reports")
+    lab_referrals: Mapped[list["PatientLabReferral"]] = relationship("PatientLabReferral", back_populates="report")
 
 
 class PatientAppointment(Base):
@@ -191,4 +196,78 @@ class PatientVisit(Base):
     patient: Mapped["Patient"] = relationship(
         "Patient", foreign_keys=[patient_id], back_populates="patient_visits"
     )
+
+
+class PatientLabReferral(Base):
+    __tablename__ = "patient_lab_referrals"
+
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+
+    organization_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
+    )
+    branch_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("branches.id", ondelete="CASCADE"), nullable=False
+    )
+    doctor_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    patient_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("patients.id", ondelete="CASCADE"), nullable=False
+    )
+
+    ref_no: Mapped[str] = mapped_column(String(255), nullable=False)
+    referred_by: Mapped[str] = mapped_column(String(255), nullable=False)
+    clinical_notes: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    report_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("reports.id", ondelete="SET NULL"), nullable=True
+    )
+    special_instructions: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    lab_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("laboratories.id", ondelete="CASCADE"), nullable=False
+    )
+    priority: Mapped[str] = mapped_column(
+        String(255), nullable=False, server_default=LabReferralPriority.LOW.value
+    )
+
+    created_at: Mapped[datetime] = mapped_column(server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    )
+
+    # Relationships
+    organization: Mapped["Organization"] = relationship("Organization", foreign_keys=[organization_id], back_populates="lab_referrals")
+    branch: Mapped["Branch"] = relationship("Branch", foreign_keys=[branch_id], back_populates="lab_referrals")
+    doctor: Mapped["User"] = relationship("User", foreign_keys=[doctor_id], back_populates="doctor_lab_referrals")
+    patient: Mapped["Patient"] = relationship("Patient", back_populates="lab_referrals")
+    report: Mapped["Report | None"] = relationship("Report", back_populates="lab_referrals")
+    laboratory: Mapped["Laboratory"] = relationship("Laboratory", foreign_keys=[lab_id], back_populates="lab_referrals")
+    tests_required: Mapped[list["TestRequired"]] = relationship("TestRequired", back_populates="referral", cascade="all, delete-orphan")
+
+
+class TestRequired(Base):
+    __tablename__ = "test_required"
+
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+
+    referral_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("patient_lab_referrals.id", ondelete="CASCADE"), nullable=False
+    )
+    test_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    test_code: Mapped[str] = mapped_column(String(255), nullable=False)
+    test_description: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    attachments: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    )
+
+    # Relationships
+    referral: Mapped["PatientLabReferral"] = relationship("PatientLabReferral", back_populates="tests_required")
+
 
