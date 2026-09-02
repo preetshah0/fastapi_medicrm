@@ -13,12 +13,16 @@ from app.owner.controller.followup import (
     reschedule_followup,
 )
 from app.utils.ApiResponse import success_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/followups", tags=["followups"])
 
 
-
-@router.patch("/{followup_id}/visited/organization/{organization_id}", response_model=APIResponse[FollowUpResponse])
+@router.patch(
+    "/{followup_id}/visited/organization/{organization_id}",
+    dependencies=[Depends(require_permission("follow-ups", action="edit"))],
+    response_model=APIResponse[FollowUpResponse],
+)
 def mark_visited_route(
     followup_id: str,
     organization_id: str,
@@ -30,7 +34,11 @@ def mark_visited_route(
     return success_response("Follow-up marked as visited successfully", result)
 
 
-@router.patch("/{followup_id}/contacted/organization/{organization_id}", response_model=APIResponse[FollowUpResponse])
+@router.patch(
+    "/{followup_id}/contacted/organization/{organization_id}",
+    dependencies=[Depends(require_permission("follow-ups", action="edit"))],
+    response_model=APIResponse[FollowUpResponse],
+)
 def mark_contacted_route(
     followup_id: str,
     organization_id: str,
@@ -42,7 +50,11 @@ def mark_contacted_route(
     return success_response("Follow-up marked as contacted successfully", result)
 
 
-@router.patch("/{followup_id}/cancelled/organization/{organization_id}", response_model=APIResponse[FollowUpResponse])
+@router.patch(
+    "/{followup_id}/cancelled/organization/{organization_id}",
+    dependencies=[Depends(require_permission("follow-ups", action="edit"))],
+    response_model=APIResponse[FollowUpResponse],
+)
 def mark_cancelled_route(
     followup_id: str,
     organization_id: str,
@@ -54,7 +66,11 @@ def mark_cancelled_route(
     return success_response("Follow-up marked as cancelled successfully", result)
 
 
-@router.put("/{followup_id}/reschedule/organization/{organization_id}", response_model=APIResponse[FollowUpResponse])
+@router.put(
+    "/{followup_id}/reschedule/organization/{organization_id}",
+    dependencies=[Depends(require_permission("follow-ups", action="edit"))],
+    response_model=APIResponse[FollowUpResponse],
+)
 def reschedule_followup_route(
     followup_id: str,
     organization_id: str,
@@ -72,3 +88,4 @@ def reschedule_followup_route(
     if not result:
         return not_found_response("Follow-up not found", data="")
     return success_response("Follow-up rescheduled successfully", result)
+

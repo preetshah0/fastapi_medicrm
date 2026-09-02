@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from fastapi import status
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
@@ -46,4 +47,24 @@ def redirect_response(url: str):
     return RedirectResponse(
         url=url, 
         status_code=status.HTTP_302_FOUND
+    )
+
+def HTTP_401_RESPONSE(message="Unauthorized", data=None):
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail={
+            "success": False,
+            "message": message,
+            "data": data,
+        },
+    )
+
+def HTTP_403_RESPONSE(message="Forbidden", data=None):
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail={
+            "success": False,
+            "message": message,
+            "data": data,
+        },
     )

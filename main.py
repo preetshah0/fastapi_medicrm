@@ -9,7 +9,8 @@ from app.core.redis import limiter
 from app.core.config import settings, Settings, get_settings
 from app.core.scheduler import scheduler, register_jobs
 from app.db.database import engine, init_db
-from app.model import User                  # triggers model registration
+# from app.db.seeder.PermissionSeeder import seed_permissions
+from app.model import User                 
 # from app.utils.auth_utils import AuthenticationException
 from app.auth.routes.router import router as auth_router
 from app.admin.routes.router import router as admin_router
@@ -24,6 +25,7 @@ init_db()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # seed_permissions() #Only uncomment if you want to seed permissions
     register_jobs()
     scheduler.start()
     yield
@@ -39,7 +41,6 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Required for admin session
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
 

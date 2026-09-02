@@ -31,11 +31,16 @@ from app.owner.controller.inventory_batch import (
     get_supplier_dropdown,
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/inventory", tags=["inventory"])
 
 
-@router.post("/create/{organization_id}", response_model=APIResponse[InventoryResponse])
+@router.post(
+    "/create/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="create"))],
+    response_model=APIResponse[InventoryResponse],
+)
 def create_inventory_route(
     organization_id: str,
     inventory_data: InventoryCreate,
@@ -49,7 +54,11 @@ def create_inventory_route(
     return success_response("Inventory created or retrieved successfully", inventory)
 
 
-@router.post("/batch/create/{organization_id}", response_model=APIResponse[BatchResponse])
+@router.post(
+    "/batch/create/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="create"))],
+    response_model=APIResponse[BatchResponse],
+)
 def create_inventory_batch_route(
     organization_id: str,
     inventory_data: InventoryCreate,
@@ -65,7 +74,11 @@ def create_inventory_batch_route(
     return success_response("Inventory batch created successfully", batch)
 
 
-@router.post("/batch/create-bulk/{organization_id}", response_model=APIResponse[List[BatchResponse]])
+@router.post(
+    "/batch/create-bulk/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="create"))],
+    response_model=APIResponse[List[BatchResponse]],
+)
 def create_bulk_inventory_batches_route(
     organization_id: str,
     payload: BulkBatchCreateRequest,
@@ -80,7 +93,11 @@ def create_bulk_inventory_batches_route(
     return success_response("Bulk inventory batches created successfully", batches)
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[List[InventoryResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="view"))],
+    response_model=APIResponse[List[InventoryResponse]],
+)
 def get_all_inventories_route(
     organization_id: str,
     branch_id: Optional[str] = None,
@@ -100,7 +117,11 @@ def get_all_inventories_route(
     return success_response("Inventories fetched successfully", inventories)
 
 
-@router.get("/{inventory_id}/organization/{organization_id}", response_model=APIResponse[InventoryResponse])
+@router.get(
+    "/{inventory_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="view"))],
+    response_model=APIResponse[InventoryResponse],
+)
 def get_inventory_route(
     inventory_id: str,
     organization_id: str,
@@ -112,7 +133,11 @@ def get_inventory_route(
     return success_response("Inventory fetched successfully", inventory)
 
 
-@router.put("/{inventory_id}/organization/{organization_id}", response_model=APIResponse[InventoryResponse])
+@router.put(
+    "/{inventory_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="edit"))],
+    response_model=APIResponse[InventoryResponse],
+)
 def update_inventory_route(
     inventory_id: str,
     organization_id: str,
@@ -130,7 +155,11 @@ def update_inventory_route(
     return success_response("Inventory updated successfully", result)
 
 
-@router.delete("/{inventory_id}/organization/{organization_id}", response_model=APIResponse[str])
+@router.delete(
+    "/{inventory_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="delete"))],
+    response_model=APIResponse[str],
+)
 def delete_inventory_route(
     inventory_id: str,
     organization_id: str,
@@ -142,7 +171,11 @@ def delete_inventory_route(
     return success_response("Inventory deleted successfully", data="")
 
 
-@router.get("/{inventory_id}/batches/organization/{organization_id}", response_model=APIResponse[List[BatchResponse]])
+@router.get(
+    "/{inventory_id}/batches/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="view"))],
+    response_model=APIResponse[List[BatchResponse]],
+)
 def get_batches_route(
     inventory_id: str,
     organization_id: str,
@@ -160,7 +193,11 @@ def get_batches_route(
     return success_response("Batches fetched successfully", batches)
 
 
-@router.put("/batch/{batch_id}/organization/{organization_id}", response_model=APIResponse[BatchResponse])
+@router.put(
+    "/batch/{batch_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="edit"))],
+    response_model=APIResponse[BatchResponse],
+)
 def update_batch_route(
     batch_id: str,
     organization_id: str,
@@ -178,7 +215,11 @@ def update_batch_route(
     return success_response("Batch updated successfully", result)
 
 
-@router.delete("/batch/{batch_id}/organization/{organization_id}", response_model=APIResponse[str])
+@router.delete(
+    "/batch/{batch_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="delete"))],
+    response_model=APIResponse[str],
+)
 def delete_batch_route(
     batch_id: str,
     organization_id: str,
@@ -190,7 +231,11 @@ def delete_batch_route(
     return success_response("Batch deleted successfully", data="")
 
 
-@router.get("/dropdown/medicines/organization/{organization_id}", response_model=APIResponse[List[MasterOptionDropdownResponse]])
+@router.get(
+    "/dropdown/medicines/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="view"))],
+    response_model=APIResponse[List[MasterOptionDropdownResponse]],
+)
 def get_medicine_dropdown_route(
     organization_id: str,
     branch_id: str,
@@ -200,7 +245,11 @@ def get_medicine_dropdown_route(
     return success_response("Medicine dropdown fetched successfully", options)
 
 
-@router.get("/dropdown/suppliers/organization/{organization_id}", response_model=APIResponse[List[SupplierDropdownResponse]])
+@router.get(
+    "/dropdown/suppliers/organization/{organization_id}",
+    dependencies=[Depends(require_permission("inventory-batches", action="view"))],
+    response_model=APIResponse[List[SupplierDropdownResponse]],
+)
 def get_supplier_dropdown_route(
     organization_id: str,
     branch_id: Optional[str] = None,
@@ -208,4 +257,5 @@ def get_supplier_dropdown_route(
 ):
     options = get_supplier_dropdown(db=db, organization_id=organization_id, branch_id=branch_id)
     return success_response("Supplier dropdown fetched successfully", options)
+
 

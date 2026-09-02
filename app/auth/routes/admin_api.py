@@ -15,6 +15,7 @@ from app.auth.controller.admin_auth import (
     logout as logout_controller,
     get_admin_user as get_user_controller,
 )
+from app.utils.auth_utils import get_current_user_id
 
 router = APIRouter(prefix="/admin/auth", tags=["admin_auth"])
 
@@ -28,7 +29,6 @@ def login(
     db: Session = Depends(get_db),
 ):
     return login_controller(db, email, password)
-
 
 
 @router.post('/refresh', response_model=TokenRefreshResponse)
@@ -48,5 +48,6 @@ def logout(
 
 
 @router.get('/user')
-def user(email: str, db: Session = Depends(get_db)):
-    return get_user_controller(db, email)
+def user(user_data=Depends(get_user_controller)):
+    return user_data
+

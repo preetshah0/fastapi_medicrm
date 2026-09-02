@@ -1,3 +1,4 @@
+from app.utils.ApiResponse import HTTP_403_RESPONSE
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
@@ -5,7 +6,13 @@ from app.model.User import User
 from app.model.UserRefreshToken import UserRefreshToken
 from app.Enum.UserRole import UserRole
 from jose import jwt
-from app.utils.ApiResponse import success_response, error_response, not_found_response, unauthorized_response
+from app.utils.ApiResponse import (
+    success_response,
+    error_response,
+    not_found_response,
+    unauthorized_response,
+    HTTP_401_RESPONSE,
+)
 from app.utils.auth_utils import (
     authenticate_user,
     create_access_token,
@@ -13,8 +20,12 @@ from app.utils.auth_utils import (
     decode_token,
     get_user,
     get_user_by_id,
+    get_current_user_id,
+    get_current_user_object,
 )
 from app.core.config import settings
+from app.db.database import get_db
+from fastapi import Depends
 
 
 def _get_active_refresh_token(db: Session, token: str) -> UserRefreshToken | None:
@@ -73,14 +84,6 @@ def login(db: Session, email: str, password: str):
 
 
 def refresh_token(db: Session, refresh_token_str: str):
-    """
-    Refresh access token
-    Args:
-        db (Session): database session
-        refresh_token_str (str): refresh token
-    Returns:
-        JSONResponse: new access token
-    """
     if not refresh_token_str:
         return unauthorized_response("Refresh token is required", data = "")
 
@@ -149,20 +152,10 @@ def logout(db: Session, refresh_token_str: str):
     return success_response("Logout successful", data = "")
 
 
-def get_user_by_email(db: Session, email: str):
 
-    user = get_user(db, email)
-    if not user:
-        return not_found_response("User not found")
 
-    # Check if user is admin
-    if user.role == UserRole.ADMIN.value:
-        return unauthorized_response("Admin users cannot access this resource")
-    
-    # Check if user is registered to an organization
-    if not user.organization_id:
-        return unauthorized_response("User is not registered to any organization")
 
+def get_current_user(user: User = Depends(get_current_user_object)):
     return success_response(
         "User loaded",
         data={

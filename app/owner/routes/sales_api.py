@@ -30,11 +30,16 @@ from app.owner.controller.sale import (
 )
 from app.model.Branch import Branch
 from app.utils.ApiResponse import success_response, error_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/sales", tags=["sales"])
 
 
-@router.post("/create", response_model=APIResponse[SaleResponse])
+@router.post(
+    "/create",
+    dependencies=[Depends(require_permission("sales", action="create"))],
+    response_model=APIResponse[SaleResponse],
+)
 def create_sale_route(
     payload: SaleCreate,
     db: Session = Depends(get_db)
@@ -61,7 +66,11 @@ def create_sale_route(
         return error_response(str(e), data=None)
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[List[SaleResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[List[SaleResponse]],
+)
 def get_sales_route(
     organization_id: str,
     branch_id: Optional[str] = Query(None),
@@ -92,7 +101,11 @@ def get_sales_route(
         return error_response(str(e), data=None)
 
 
-@router.get("/{sale_id}/organization/{organization_id}", response_model=APIResponse[SaleResponse])
+@router.get(
+    "/{sale_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[SaleResponse],
+)
 def get_sale_route(
     sale_id: str,
     organization_id: str,
@@ -107,7 +120,11 @@ def get_sale_route(
         return error_response(str(e), data=None)
 
 
-@router.put("/{sale_id}/organization/{organization_id}", response_model=APIResponse[SaleResponse])
+@router.put(
+    "/{sale_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("sales", action="edit"))],
+    response_model=APIResponse[SaleResponse],
+)
 def update_sale_route(
     sale_id: str,
     organization_id: str,
@@ -127,8 +144,16 @@ def update_sale_route(
         return error_response(str(e), data=None)
 
 
-@router.post("/{sale_id}/dispense", response_model=APIResponse[SaleResponse])
-@router.post("/{sale_id}/organization/{organization_id}/dispense", response_model=APIResponse[SaleResponse])
+@router.post(
+    "/{sale_id}/dispense",
+    dependencies=[Depends(require_permission("sales", action="edit"))],
+    response_model=APIResponse[SaleResponse],
+)
+@router.post(
+    "/{sale_id}/organization/{organization_id}/dispense",
+    dependencies=[Depends(require_permission("sales", action="edit"))],
+    response_model=APIResponse[SaleResponse],
+)
 def dispense_sale_route(
     sale_id: str,
     payload: DispenseSaleRequest,
@@ -157,8 +182,16 @@ def dispense_sale_route(
         return error_response(str(e), data=None)
 
 
-@router.post("/{sale_id}/cancel", response_model=APIResponse[SaleResponse])
-@router.post("/{sale_id}/organization/{organization_id}/cancel", response_model=APIResponse[SaleResponse])
+@router.post(
+    "/{sale_id}/cancel",
+    dependencies=[Depends(require_permission("sales", action="edit"))],
+    response_model=APIResponse[SaleResponse],
+)
+@router.post(
+    "/{sale_id}/organization/{organization_id}/cancel",
+    dependencies=[Depends(require_permission("sales", action="edit"))],
+    response_model=APIResponse[SaleResponse],
+)
 def cancel_sale_route(
     sale_id: str,
     organization_id: Optional[str] = None,
@@ -189,7 +222,11 @@ def cancel_sale_route(
         return error_response(str(e), data=None)
 
 
-@router.delete("/{sale_id}/organization/{organization_id}", response_model=APIResponse[dict])
+@router.delete(
+    "/{sale_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("sales", action="delete"))],
+    response_model=APIResponse[dict],
+)
 def delete_sale_route(
     sale_id: str,
     organization_id: str,
@@ -209,7 +246,11 @@ def delete_sale_route(
 
 
 # Dropdown / Enum helper routes
-@router.get("/branches", response_model=APIResponse[List[SaleBranchResponse]])
+@router.get(
+    "/branches",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[List[SaleBranchResponse]],
+)
 def get_sale_branches(
     organization_id: Optional[str] = Query(None),
     db: Session = Depends(get_db)
@@ -221,7 +262,11 @@ def get_sale_branches(
         return error_response(str(e), data=None)
 
 
-@router.get("/prescriptions", response_model=APIResponse[List[SalePrescriptionResponse]])
+@router.get(
+    "/prescriptions",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[List[SalePrescriptionResponse]],
+)
 def get_sale_prescriptions(
     organization_id: Optional[str] = Query(None),
     db: Session = Depends(get_db)
@@ -233,21 +278,38 @@ def get_sale_prescriptions(
         return error_response(str(e), data=None)
 
 
-@router.get("/types", response_model=APIResponse[List[SaleEnumResponse]])
+@router.get(
+    "/types",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[List[SaleEnumResponse]],
+)
 def get_sale_types_route():
     return success_response("Sale types fetched successfully", get_sale_types())
 
 
-@router.get("/payment-methods", response_model=APIResponse[List[SaleEnumResponse]])
+@router.get(
+    "/payment-methods",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[List[SaleEnumResponse]],
+)
 def get_sale_payment_methods_route():
     return success_response("Payment methods fetched successfully", get_sale_payment_method_types())
 
 
-@router.get("/payment-statuses", response_model=APIResponse[List[SaleEnumResponse]])
+@router.get(
+    "/payment-statuses",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[List[SaleEnumResponse]],
+)
 def get_sale_payment_statuses_route():
     return success_response("Payment statuses fetched successfully", get_sale_payment_status_types())
 
 
-@router.get("/statuses", response_model=APIResponse[List[SaleEnumResponse]])
+@router.get(
+    "/statuses",
+    dependencies=[Depends(require_permission("sales", action="view"))],
+    response_model=APIResponse[List[SaleEnumResponse]],
+)
 def get_sales_statuses_route():
     return success_response("Sales statuses fetched successfully", get_sales_status_types())
+

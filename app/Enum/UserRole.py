@@ -10,6 +10,5 @@ class UserRole(str, Enum):
         labels = {
             self.ADMIN: "Admin",
             self.OWNER: "Owner",
-            self.STAFF: "Staff",
         }
         return  labels.get(self)

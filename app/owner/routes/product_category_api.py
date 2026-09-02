@@ -20,11 +20,16 @@ from app.owner.controller.product_categories import (
     delete_product_category,
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/product-categories", tags=["product-categories"])
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[List[ProductCategoryResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("product-categories", action="view"))],
+    response_model=APIResponse[List[ProductCategoryResponse]],
+)
 def get_product_categories_route(
     organization_id: str,
     is_active: bool = True,
@@ -42,7 +47,11 @@ def get_product_categories_route(
     return success_response("Product categories fetched successfully", categories)
 
 
-@router.get("/{slug}", response_model=APIResponse[ProductCategoryResponse])
+@router.get(
+    "/{slug}",
+    dependencies=[Depends(require_permission("product-categories", action="view"))],
+    response_model=APIResponse[ProductCategoryResponse],
+)
 def get_product_category_by_slug_route(slug: str, db: Session = Depends(get_db)):
     category = get_product_category_by_slug(db, slug)
     if not category:
@@ -50,7 +59,11 @@ def get_product_category_by_slug_route(slug: str, db: Session = Depends(get_db))
     return success_response("Product category fetched successfully", category)
 
 
-@router.post("/create/{organization_id}", response_model=APIResponse[ProductCategoryResponse])
+@router.post(
+    "/create/{organization_id}",
+    dependencies=[Depends(require_permission("product-categories", action="create"))],
+    response_model=APIResponse[ProductCategoryResponse],
+)
 def create_product_category_route(
     organization_id: str,
     payload: ProductCategoryCreate,
@@ -68,7 +81,11 @@ def create_product_category_route(
     return success_response("Product category created successfully", result)
 
 
-@router.get("/{category_id}", response_model=APIResponse[ProductCategoryResponse])
+@router.get(
+    "/{category_id}",
+    dependencies=[Depends(require_permission("product-categories", action="view"))],
+    response_model=APIResponse[ProductCategoryResponse],
+)
 def get_product_category_route(category_id: str, db: Session = Depends(get_db)):
     category = get_product_category_by_id(db, category_id)
     if not category:
@@ -76,7 +93,11 @@ def get_product_category_route(category_id: str, db: Session = Depends(get_db)):
     return success_response("Product category fetched successfully", category)
 
 
-@router.put("/{category_id}", response_model=APIResponse[ProductCategoryResponse])
+@router.put(
+    "/{category_id}",
+    dependencies=[Depends(require_permission("product-categories", action="edit"))],
+    response_model=APIResponse[ProductCategoryResponse],
+)
 def update_product_category_route(
     category_id: str,
     payload: ProductCategoryUpdate,
@@ -88,9 +109,13 @@ def update_product_category_route(
     return success_response("Product category updated successfully", result)
 
 
-@router.delete("/{category_id}")
+@router.delete(
+    "/{category_id}",
+    dependencies=[Depends(require_permission("product-categories", action="delete"))],
+)
 def delete_product_category_route(category_id: str, db: Session = Depends(get_db)):
     result = delete_product_category(db=db, category_id=category_id)
     if not result:
         return not_found_response("Product category not found", data="")
     return success_response("Product category deleted successfully", data="")
+
