@@ -13,16 +13,25 @@ from app.owner.controller.teams import (
     remove_role_from_user,
 )
 from app.utils.ApiResponse import success_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/teams", tags=["teams"])
 
 
-@router.post("/add", response_model=APIResponse[UserResponse])
+@router.post(
+    "/add",
+    dependencies=[Depends(require_permission("team", action="create"))],
+    response_model=APIResponse[UserResponse],
+)
 def add_user_route(user: UserCreate, db: Session = Depends(get_db)):
     return success_response("User added successfully", create_user(db, user))
 
 
-@router.get("/user/{user_id}", response_model=APIResponse[UserResponse])
+@router.get(
+    "/user/{user_id}",
+    dependencies=[Depends(require_permission("team", action="view"))],
+    response_model=APIResponse[UserResponse],
+)
 def get_user_route(user_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
@@ -30,7 +39,11 @@ def get_user_route(user_id: str, db: Session = Depends(get_db)):
     return success_response("User fetched successfully", db_user)
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[list[UserResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("team", action="view"))],
+    response_model=APIResponse[list[UserResponse]],
+)
 def get_users_route(
     organization_id: str,
     skip: int = 0,
@@ -43,7 +56,11 @@ def get_users_route(
     )
 
 
-@router.put("/{user_id}", response_model=APIResponse[UserResponse])
+@router.put(
+    "/{user_id}",
+    dependencies=[Depends(require_permission("team", action="edit"))],
+    response_model=APIResponse[UserResponse],
+)
 def update_user_route(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
@@ -51,7 +68,10 @@ def update_user_route(user_id: str, user: UserUpdate, db: Session = Depends(get_
     return success_response("User updated successfully", update_user(db, db_user, user))
 
 
-@router.delete("/{user_id}")
+@router.delete(
+    "/{user_id}",
+    dependencies=[Depends(require_permission("team", action="delete"))],
+)
 def delete_user_route(user_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
@@ -60,7 +80,11 @@ def delete_user_route(user_id: str, db: Session = Depends(get_db)):
     return success_response("User deleted successfully", data="")
 
 
-@router.post("/{user_id}/role/{role_id}", response_model=APIResponse[UserResponse])
+@router.post(
+    "/{user_id}/role/{role_id}",
+    dependencies=[Depends(require_permission("team", action="edit"))],
+    response_model=APIResponse[UserResponse],
+)
 def assign_role_route(user_id: str, role_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
@@ -71,7 +95,11 @@ def assign_role_route(user_id: str, role_id: str, db: Session = Depends(get_db))
     return success_response("Role assigned successfully", assign_role_to_user(db, db_user, db_role))
 
 
-@router.delete("/{user_id}/role/{role_id}", response_model=APIResponse[UserResponse])
+@router.delete(
+    "/{user_id}/role/{role_id}",
+    dependencies=[Depends(require_permission("team", action="edit"))],
+    response_model=APIResponse[UserResponse],
+)
 def remove_role_route(user_id: str, role_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
@@ -80,3 +108,4 @@ def remove_role_route(user_id: str, role_id: str, db: Session = Depends(get_db))
     if not db_role:
         return not_found_response("Role not found")
     return success_response("Role removed successfully", remove_role_from_user(db, db_user, db_role))
+

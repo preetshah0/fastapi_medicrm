@@ -23,18 +23,26 @@ from app.owner.controller.masteroption import (
     delete_master_option,
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/master-options", tags=["master-options"])
 
 
-@router.get("/types", response_model=APIResponse[List[MasterOptionTypeResponse]])
+@router.get(
+    "/types",
+    dependencies=[Depends(require_permission("master-options", action="view"))],
+    response_model=APIResponse[List[MasterOptionTypeResponse]],
+)
 def get_master_option_types_route():
     types = get_master_option_types()
     return success_response("Master option types fetched successfully", types)
 
 
-
-@router.get("/dropdown/organization/{organization_id}", response_model=APIResponse[List[MasterOptionDropdownResponse]])
+@router.get(
+    "/dropdown/organization/{organization_id}",
+    dependencies=[Depends(require_permission("master-options", action="view"))],
+    response_model=APIResponse[List[MasterOptionDropdownResponse]],
+)
 def get_master_option_dropdown_route(
     organization_id: str,
     option_type: MasterOptionType,
@@ -48,9 +56,11 @@ def get_master_option_dropdown_route(
     return success_response("Master options dropdown fetched successfully", options)
 
 
-
-
-@router.post("/create/{organization_id}", response_model=APIResponse[MasterOptionResponse])
+@router.post(
+    "/create/{organization_id}",
+    dependencies=[Depends(require_permission("master-options", action="create"))],
+    response_model=APIResponse[MasterOptionResponse],
+)
 def create_master_option_route(
     organization_id: str,
     payload: MasterOptionCreate,
@@ -74,7 +84,11 @@ def create_master_option_route(
     return success_response("Master option created successfully", result)
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[List[MasterOptionResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("master-options", action="view"))],
+    response_model=APIResponse[List[MasterOptionResponse]],
+)
 def get_master_options_route(
     organization_id: str,
     option_type: MasterOptionType,
@@ -94,7 +108,11 @@ def get_master_options_route(
     return success_response("Master options fetched successfully", options)
 
 
-@router.get("/{master_option_id}/organization/{organization_id}", response_model=APIResponse[MasterOptionResponse])
+@router.get(
+    "/{master_option_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("master-options", action="view"))],
+    response_model=APIResponse[MasterOptionResponse],
+)
 def get_master_option_route(
     master_option_id: str,
     organization_id: str,
@@ -106,7 +124,11 @@ def get_master_option_route(
     return success_response("Master option fetched successfully", master_option)
 
 
-@router.put("/{master_option_id}/organization/{organization_id}", response_model=APIResponse[MasterOptionResponse])
+@router.put(
+    "/{master_option_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("master-options", action="edit"))],
+    response_model=APIResponse[MasterOptionResponse],
+)
 def update_master_option_route(
     master_option_id: str,
     organization_id: str,
@@ -141,7 +163,11 @@ def update_master_option_route(
     return success_response("Master option updated successfully", result)
 
 
-@router.delete("/{master_option_id}/organization/{organization_id}", response_model=APIResponse[str])
+@router.delete(
+    "/{master_option_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("master-options", action="delete"))],
+    response_model=APIResponse[str],
+)
 def delete_master_option_route(
     master_option_id: str,
     organization_id: str,
@@ -153,3 +179,4 @@ def delete_master_option_route(
 
     delete_master_option(db=db, master_option_id=master_option_id, organization_id=organization_id)
     return success_response("Master option deleted successfully", data="")
+

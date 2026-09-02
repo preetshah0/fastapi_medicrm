@@ -48,19 +48,21 @@ from app.owner.controller.patient import (
     get_report_dropdown,
     get_priority_enum,
 )
-from app.utils.auth_utils import get_current_user_id
+from app.utils.auth_utils import get_current_user_id, require_permission
 from app.utils.ApiResponse import success_response, not_found_response, error_response
 
 router = APIRouter(prefix="/owner/patients", tags=["patients"])
 
 
-@router.post("/create", response_model=APIResponse[PatientResponse])
+@router.post(
+    "/create",
+    dependencies=[Depends(require_permission("patients", action="create"))],
+    response_model=APIResponse[PatientResponse],
+)
 def create_patient_route(
     payload: PatientCreate,
     db: Session = Depends(get_db),
 ):
-
-
     result = create_patient(db=db, patient=payload)
     if not result:
         return error_response("Error creating patient or organization not found", data="")
@@ -68,7 +70,11 @@ def create_patient_route(
     return success_response("Patient created successfully", result)
 
 
-@router.get("/{patient_id}", response_model=APIResponse[PatientResponse])
+@router.get(
+    "/{patient_id}",
+    dependencies=[Depends(require_permission("patients", action="view"))],
+    response_model=APIResponse[PatientResponse],
+)
 def get_patient_route(
     patient_id: str,
     db: Session = Depends(get_db),
@@ -80,7 +86,11 @@ def get_patient_route(
     return success_response("Patient fetched successfully", result)
 
 
-@router.get("/{organization_id}", response_model=APIResponse[list[PatientResponse]])
+@router.get(
+    "/{organization_id}",
+    dependencies=[Depends(require_permission("patients", action="view"))],
+    response_model=APIResponse[list[PatientResponse]],
+)
 def get_patients_by_organization_route(
     organization_id: str,
     db: Session = Depends(get_db),
@@ -92,7 +102,11 @@ def get_patients_by_organization_route(
     return success_response("Patients fetched successfully", result)
 
 
-@router.get("/{ref_code}", response_model=APIResponse[PatientResponse])
+@router.get(
+    "/{ref_code}",
+    dependencies=[Depends(require_permission("patients", action="view"))],
+    response_model=APIResponse[PatientResponse],
+)
 def get_patient_by_ref_code_route(
     ref_code: str,
     db: Session = Depends(get_db),
@@ -104,7 +118,11 @@ def get_patient_by_ref_code_route(
     return success_response("Patient fetched successfully", result)
 
 
-@router.put("/{patient_id}", response_model=APIResponse[PatientResponse])
+@router.put(
+    "/{patient_id}",
+    dependencies=[Depends(require_permission("patients", action="edit"))],
+    response_model=APIResponse[PatientResponse],
+)
 def update_patient_route(
     patient_id: str,
     payload: PatientUpdate,
@@ -117,7 +135,10 @@ def update_patient_route(
     return success_response("Patient updated successfully", result)
 
 
-@router.delete("/{patient_id}")
+@router.delete(
+    "/{patient_id}",
+    dependencies=[Depends(require_permission("patients", action="delete"))],
+)
 def delete_patient_route(
     patient_id: str,
     db: Session = Depends(get_db),
@@ -132,7 +153,11 @@ def delete_patient_route(
 notes_router = APIRouter(prefix="/owner/notes", tags=["notes"])
 
 
-@notes_router.post("/create", response_model=APIResponse[NoteResponse])
+@notes_router.post(
+    "/create",
+    dependencies=[Depends(require_permission("patient-notes", action="create"))],
+    response_model=APIResponse[NoteResponse],
+)
 def create_note_route(
     payload: NoteCreate,
     db: Session = Depends(get_db),
@@ -145,7 +170,11 @@ def create_note_route(
     return success_response("Note created successfully", result)
 
 
-@notes_router.get("/{note_id}", response_model=APIResponse[NoteResponse])
+@notes_router.get(
+    "/{note_id}",
+    dependencies=[Depends(require_permission("patient-notes", action="view"))],
+    response_model=APIResponse[NoteResponse],
+)
 def get_note_route(
     note_id: str,
     db: Session = Depends(get_db),
@@ -157,7 +186,11 @@ def get_note_route(
     return success_response("Note fetched successfully", result)
 
 
-@notes_router.get("/{patient_id}", response_model=APIResponse[list[NoteResponse]])
+@notes_router.get(
+    "/{patient_id}",
+    dependencies=[Depends(require_permission("patient-notes", action="view"))],
+    response_model=APIResponse[list[NoteResponse]],
+)
 def get_patient_notes_route(
     patient_id: str,
     db: Session = Depends(get_db),
@@ -169,7 +202,11 @@ def get_patient_notes_route(
     return success_response("Notes fetched successfully", result)
 
 
-@notes_router.get("", response_model=APIResponse[list[NoteResponse]])
+@notes_router.get(
+    "",
+    dependencies=[Depends(require_permission("patient-notes", action="view"))],
+    response_model=APIResponse[list[NoteResponse]],
+)
 def get_all_notes_route(
     db: Session = Depends(get_db),
     user_id: str = Depends(get_current_user_id),
@@ -181,7 +218,11 @@ def get_all_notes_route(
     return success_response("Notes fetched successfully", result)
 
 
-@notes_router.put("/{note_id}", response_model=APIResponse[NoteResponse])
+@notes_router.put(
+    "/{note_id}",
+    dependencies=[Depends(require_permission("patient-notes", action="edit"))],
+    response_model=APIResponse[NoteResponse],
+)
 def update_note_route(
     note_id: str,
     payload: NoteUpdate,
@@ -194,7 +235,10 @@ def update_note_route(
     return success_response("Note updated successfully", result)
 
 
-@notes_router.delete("/{note_id}")
+@notes_router.delete(
+    "/{note_id}",
+    dependencies=[Depends(require_permission("patient-notes", action="delete"))],
+)
 def delete_note_route(
     note_id: str,
     db: Session = Depends(get_db),
@@ -210,7 +254,11 @@ def delete_note_route(
 reports_router = APIRouter(prefix="/owner/reports", tags=["reports"])
 
 
-@reports_router.post("/create", response_model=APIResponse[ReportResponse])
+@reports_router.post(
+    "/create",
+    dependencies=[Depends(require_permission("patient-reports", action="create"))],
+    response_model=APIResponse[ReportResponse],
+)
 def create_report_route(
     payload: ReportCreate,
     db: Session = Depends(get_db),
@@ -222,7 +270,11 @@ def create_report_route(
     return success_response("Report created successfully", result)
 
 
-@reports_router.get("/{report_id}", response_model=APIResponse[ReportResponse])
+@reports_router.get(
+    "/{report_id}",
+    dependencies=[Depends(require_permission("patient-reports", action="view"))],
+    response_model=APIResponse[ReportResponse],
+)
 def get_report_route(
     report_id: str,
     db: Session = Depends(get_db),
@@ -234,7 +286,11 @@ def get_report_route(
     return success_response("Report fetched successfully", result)
 
 
-@reports_router.get("/patient/{patient_id}", response_model=APIResponse[list[ReportResponse]])
+@reports_router.get(
+    "/patient/{patient_id}",
+    dependencies=[Depends(require_permission("patient-reports", action="view"))],
+    response_model=APIResponse[list[ReportResponse]],
+)
 def get_patient_reports_route(
     patient_id: str,
     db: Session = Depends(get_db),
@@ -246,7 +302,11 @@ def get_patient_reports_route(
     return success_response("Reports fetched successfully", result)
 
 
-@reports_router.get("/all", response_model=APIResponse[list[ReportResponse]])
+@reports_router.get(
+    "/all",
+    dependencies=[Depends(require_permission("patient-reports", action="view"))],
+    response_model=APIResponse[list[ReportResponse]],
+)
 def get_all_reports_route(
     db: Session = Depends(get_db),
 ):
@@ -257,7 +317,11 @@ def get_all_reports_route(
     return success_response("Reports fetched successfully", result)
 
 
-@reports_router.put("/{report_id}", response_model=APIResponse[ReportResponse])
+@reports_router.put(
+    "/{report_id}",
+    dependencies=[Depends(require_permission("patient-reports", action="edit"))],
+    response_model=APIResponse[ReportResponse],
+)
 def update_report_route(
     report_id: str,
     payload: ReportUpdate,
@@ -270,7 +334,10 @@ def update_report_route(
     return success_response("Report updated successfully", result)
 
 
-@reports_router.delete("/{report_id}")
+@reports_router.delete(
+    "/{report_id}",
+    dependencies=[Depends(require_permission("patient-reports", action="delete"))],
+)
 def delete_report_route(
     report_id: str,
     db: Session = Depends(get_db),
@@ -285,7 +352,11 @@ def delete_report_route(
 lab_referral_router = APIRouter(prefix="/owner/lab-referrals", tags=["lab-referrals"])
 
 
-@lab_referral_router.post("/create", response_model=APIResponse[PatientLabReferralResponse])
+@lab_referral_router.post(
+    "/create",
+    dependencies=[Depends(require_permission("lab_referrals", action="create"))],
+    response_model=APIResponse[PatientLabReferralResponse],
+)
 def create_lab_referral_route(
     payload: PatientLabReferralCreate,
     db: Session = Depends(get_db),
@@ -329,13 +400,21 @@ def create_lab_referral_route(
     return success_response("Lab referral created successfully", result)
 
 
-@lab_referral_router.get("/priorities", response_model=APIResponse[list[LabReferralPriorityOptionResponse]])
+@lab_referral_router.get(
+    "/priorities",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[list[LabReferralPriorityOptionResponse]],
+)
 def get_priority_enum_route():
     result = get_priority_enum()
     return success_response("Lab referral priority types fetched successfully", result)
 
 
-@lab_referral_router.get("/dropdown/branches/{organization_id}", response_model=APIResponse[list[BranchDropdownResponse]])
+@lab_referral_router.get(
+    "/dropdown/branches/{organization_id}",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[list[BranchDropdownResponse]],
+)
 def get_branch_dropdown_route(
     organization_id: str,
     db: Session = Depends(get_db),
@@ -348,7 +427,11 @@ def get_branch_dropdown_route(
     return success_response("Branches dropdown fetched successfully", result)
 
 
-@lab_referral_router.get("/dropdown/doctors/{organization_id}", response_model=APIResponse[list[UserDropdownResponse]])
+@lab_referral_router.get(
+    "/dropdown/doctors/{organization_id}",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[list[UserDropdownResponse]],
+)
 def get_user_dropdown_route(
     organization_id: str,
     db: Session = Depends(get_db),
@@ -361,7 +444,11 @@ def get_user_dropdown_route(
     return success_response("Doctors dropdown fetched successfully", result)
 
 
-@lab_referral_router.get("/dropdown/labs/{organization_id}", response_model=APIResponse[list[LabDropdownResponse]])
+@lab_referral_router.get(
+    "/dropdown/labs/{organization_id}",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[list[LabDropdownResponse]],
+)
 def get_lab_dropdown_route(
     organization_id: str,
     db: Session = Depends(get_db),
@@ -374,7 +461,11 @@ def get_lab_dropdown_route(
     return success_response("External laboratories dropdown fetched successfully", result)
 
 
-@lab_referral_router.get("/dropdown/reports/{patient_id}", response_model=APIResponse[list[ReportDropdownResponse]])
+@lab_referral_router.get(
+    "/dropdown/reports/{patient_id}",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[list[ReportDropdownResponse]],
+)
 def get_report_dropdown_route(
     patient_id: str,
     db: Session = Depends(get_db),
@@ -387,7 +478,11 @@ def get_report_dropdown_route(
     return success_response("Reports dropdown fetched successfully", result)
 
 
-@lab_referral_router.get("/{referral_id}", response_model=APIResponse[PatientLabReferralResponse])
+@lab_referral_router.get(
+    "/{referral_id}",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[PatientLabReferralResponse],
+)
 def get_lab_referral_route(
     referral_id: str,
     db: Session = Depends(get_db),
@@ -399,7 +494,11 @@ def get_lab_referral_route(
     return success_response("Lab referral fetched successfully", result)
 
 
-@lab_referral_router.get("/patient/{patient_id}", response_model=APIResponse[list[PatientLabReferralResponse]])
+@lab_referral_router.get(
+    "/patient/{patient_id}",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[list[PatientLabReferralResponse]],
+)
 def get_patient_lab_referrals_route(
     patient_id: str,
     db: Session = Depends(get_db),
@@ -412,7 +511,11 @@ def get_patient_lab_referrals_route(
     return success_response("Patient lab referrals fetched successfully", result)
 
 
-@lab_referral_router.get("/organization/{organization_id}", response_model=APIResponse[list[PatientLabReferralResponse]])
+@lab_referral_router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("lab_referrals", action="view"))],
+    response_model=APIResponse[list[PatientLabReferralResponse]],
+)
 def get_organization_lab_referrals_route(
     organization_id: str,
     db: Session = Depends(get_db),
@@ -423,4 +526,5 @@ def get_organization_lab_referrals_route(
 
     result = get_patient_lab_referrals_by_organization(db=db, organization_id=organization_id)
     return success_response("Organization lab referrals fetched successfully", result)
+
 

@@ -27,11 +27,16 @@ from app.owner.controller.appointment import (
     delete_appointment,
 )
 from app.utils.ApiResponse import success_response, not_found_response, error_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/appointments", tags=["appointments"])
 
 
-@router.post("/create", response_model=APIResponse[AppointmentResponse])
+@router.post(
+    "/create",
+    dependencies=[Depends(require_permission("appointments", action="create"))],
+    response_model=APIResponse[AppointmentResponse],
+)
 def create_appointment_route(
     payload: AppointmentCreate,
     db: Session = Depends(get_db),
@@ -42,7 +47,11 @@ def create_appointment_route(
     return success_response("Appointment created and logged successfully", result)
 
 
-@router.get("/all", response_model=APIResponse[List[AppointmentResponse]])
+@router.get(
+    "/all",
+    dependencies=[Depends(require_permission("appointments", action="view"))],
+    response_model=APIResponse[List[AppointmentResponse]],
+)
 def get_all_appointments_route(
     db: Session = Depends(get_db),
 ):
@@ -50,7 +59,11 @@ def get_all_appointments_route(
     return success_response("Appointments fetched successfully", result)
 
 
-@router.get("/slots", response_model=APIResponse[List[AppointmentSlotResponse]])
+@router.get(
+    "/slots",
+    dependencies=[Depends(require_permission("appointments", action="view"))],
+    response_model=APIResponse[List[AppointmentSlotResponse]],
+)
 def get_available_appointment_slots_route(
     branch_id: str,
     doctor_id: str,
@@ -75,7 +88,11 @@ def get_available_appointment_slots_route(
     return success_response("Available slots fetched successfully", result)
 
 
-@router.get("/durations", response_model=APIResponse[List[AppointmentDurationOptionResponse]])
+@router.get(
+    "/durations",
+    dependencies=[Depends(require_permission("appointments", action="view"))],
+    response_model=APIResponse[List[AppointmentDurationOptionResponse]],
+)
 def get_appointment_duration_options_route(
     db: Session = Depends(get_db),
 ):
@@ -83,7 +100,11 @@ def get_appointment_duration_options_route(
     return success_response("Appointment duration options fetched successfully", result)
 
 
-@router.get("/{appointment_id}", response_model=APIResponse[AppointmentResponse])
+@router.get(
+    "/{appointment_id}",
+    dependencies=[Depends(require_permission("appointments", action="view"))],
+    response_model=APIResponse[AppointmentResponse],
+)
 def get_appointment_route(
     appointment_id: str,
     db: Session = Depends(get_db),
@@ -94,7 +115,11 @@ def get_appointment_route(
     return success_response("Appointment fetched successfully", result)
 
 
-@router.get("/patient/{patient_id}", response_model=APIResponse[List[AppointmentResponse]])
+@router.get(
+    "/patient/{patient_id}",
+    dependencies=[Depends(require_permission("appointments", action="view"))],
+    response_model=APIResponse[List[AppointmentResponse]],
+)
 def get_patient_appointments_route(
     patient_id: str,
     db: Session = Depends(get_db),
@@ -103,7 +128,11 @@ def get_patient_appointments_route(
     return success_response("Patient appointments fetched successfully", result)
 
 
-@router.put("/{appointment_id}", response_model=APIResponse[AppointmentResponse])
+@router.put(
+    "/{appointment_id}",
+    dependencies=[Depends(require_permission("appointments", action="edit"))],
+    response_model=APIResponse[AppointmentResponse],
+)
 def update_appointment_route(
     appointment_id: str,
     payload: AppointmentUpdate,
@@ -119,7 +148,11 @@ def update_appointment_route(
     return success_response("Appointment updated successfully", result)
 
 
-@router.patch("/{appointment_id}/status", response_model=APIResponse[AppointmentResponse])
+@router.patch(
+    "/{appointment_id}/status",
+    dependencies=[Depends(require_permission("appointments", action="edit"))],
+    response_model=APIResponse[AppointmentResponse],
+)
 def update_appointment_status_route(
     appointment_id: str,
     payload: AppointmentStatusUpdate,
@@ -135,7 +168,10 @@ def update_appointment_status_route(
     return success_response("Appointment status updated and logged successfully", result)
 
 
-@router.delete("/{appointment_id}")
+@router.delete(
+    "/{appointment_id}",
+    dependencies=[Depends(require_permission("appointments", action="delete"))],
+)
 def delete_appointment_route(
     appointment_id: str,
     db: Session = Depends(get_db),
@@ -144,3 +180,4 @@ def delete_appointment_route(
     if not result:
         return not_found_response("Appointment not found", data="")
     return success_response("Appointment deleted successfully", data="")
+

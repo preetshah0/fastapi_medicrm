@@ -1,3 +1,4 @@
+from app.Enum.UserRole import UserRole
 from sqlalchemy.orm import Session
 from app.model.Organization import Organization
 from app.model.User import User
@@ -17,7 +18,7 @@ def generate_ref(title: str) -> str:
     return f"{prefix}#{random.randint(1000, 9999)}"
 
 
-def create_organization(db: Session, organization: OrganizationCreate, owner_role: Role) -> Organization:
+def create_organization(db: Session, organization: OrganizationCreate) -> Organization:
     db_org = Organization(
         organization_name=organization.organization_name,
         organization_email=organization.organization_email,
@@ -34,14 +35,13 @@ def create_organization(db: Session, organization: OrganizationCreate, owner_rol
         password=hash_password(organization.password),
         phone=organization.owner_phone,
         specialization=organization.owner_specialization,
-        role=owner_role.name,
+        role=UserRole.OWNER.value,
         status=UserStatus.ACTIVE.value,
         description=organization.owner_description,
         profile_photo=organization.owner_profile_photo,
         organization_id=db_org.id,
     )
 
-    db_owner.roles.append(owner_role)
     db.add(db_owner)
 
     db_branch = Branch(

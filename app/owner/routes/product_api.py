@@ -22,11 +22,16 @@ from app.owner.controller.product import (
     delete_product,
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/products", tags=["products"])
 
 
-@router.post("/create/{organization_id}", response_model=APIResponse[ProductResponse])
+@router.post(
+    "/create/{organization_id}",
+    dependencies=[Depends(require_permission("products", action="create"))],
+    response_model=APIResponse[ProductResponse],
+)
 def create_product_route(
     organization_id: str,
     payload: ProductCreate,
@@ -112,7 +117,11 @@ def create_product_route(
     return success_response("Product created successfully", product)
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[List[ProductResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("products", action="view"))],
+    response_model=APIResponse[List[ProductResponse]],
+)
 def get_products_route(
     organization_id: str,
     branch_id: Optional[str] = None,
@@ -134,7 +143,11 @@ def get_products_route(
     return success_response("Products fetched successfully", products)
 
 
-@router.get("/{product_id}/organization/{organization_id}", response_model=APIResponse[ProductResponse])
+@router.get(
+    "/{product_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("products", action="view"))],
+    response_model=APIResponse[ProductResponse],
+)
 def get_product_route(
     product_id: str,
     organization_id: str,
@@ -146,7 +159,11 @@ def get_product_route(
     return success_response("Product fetched successfully", product)
 
 
-@router.put("/{product_id}/organization/{organization_id}", response_model=APIResponse[ProductResponse])
+@router.put(
+    "/{product_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("products", action="edit"))],
+    response_model=APIResponse[ProductResponse],
+)
 def update_product_route(
     product_id: str,
     organization_id: str,
@@ -180,7 +197,11 @@ def update_product_route(
     return success_response("Product updated successfully", result)
 
 
-@router.delete("/{product_id}/organization/{organization_id}", response_model=APIResponse[str])
+@router.delete(
+    "/{product_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("products", action="delete"))],
+    response_model=APIResponse[str],
+)
 def delete_product_route(
     product_id: str,
     organization_id: str,
@@ -190,3 +211,4 @@ def delete_product_route(
     if not result:
         return not_found_response("Product not found", data="")
     return success_response("Product deleted successfully", data="")
+

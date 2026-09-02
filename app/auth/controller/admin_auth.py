@@ -1,3 +1,5 @@
+from app.utils.auth_utils import get_current_user_id
+from app.utils.ApiResponse import *
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
@@ -5,7 +7,6 @@ from app.model.User import User
 from app.model.UserRefreshToken import UserRefreshToken
 from app.Enum.UserRole import UserRole
 from jose import jwt
-from app.utils.ApiResponse import success_response, error_response, not_found_response, unauthorized_response
 from app.utils.auth_utils import (
     authenticate_user,
     create_access_token,
@@ -14,6 +15,8 @@ from app.utils.auth_utils import (
     get_user,
     get_user_by_id,
 )
+from app.db.database import get_db
+from fastapi import Depends
 from app.core.config import settings
 
 
@@ -134,21 +137,16 @@ def logout(db: Session, refresh_token_str: str):
     return success_response("Logout successful", data = "")
 
 
-def get_admin_user(db: Session, email: str):
-    """
-    Get admin user info
-    Args:
-        db (Session): database session
-        email (str): user email
-    Returns:
-        JSONResponse: user info
-    """
-    user = get_user(db, email)
+def get_admin_user(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user_id),
+):
+    user = get_user_by_id(db, user_id)
     if not user:
-        return not_found_response("User not found")
+        return HTTP_401_RESPONSE("User not found")
 
     if user.role != UserRole.ADMIN.value:
-        return unauthorized_response("Only admin users may access this resource")
+        return HTTP_401_RESPONSE("Only admin users may access this resource")
 
     return success_response(
         "Admin user loaded",

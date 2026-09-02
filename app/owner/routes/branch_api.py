@@ -18,6 +18,7 @@ from app.owner.controller.branch import (
     get_users_by_branch
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/branch", tags=["branch"])
 
@@ -38,7 +39,11 @@ def get_organization_examples():
         return {"Sample Org (Fallback)": {"value": "d3b07384-d113-48b2-9a3d-39294e7724a1"}}
 
 
-@router.post("/create", response_model=APIResponse[BranchResponse])
+@router.post(
+    "/create",
+    dependencies=[Depends(require_permission("branches", action="create"))],
+    response_model=APIResponse[BranchResponse],
+)
 def create_branch_route(
 branch_data: BranchCreate,
     organization_id: str = Query(
@@ -62,7 +67,11 @@ branch_data: BranchCreate,
     )
 
 
-@router.get("/{branch_id}", response_model=APIResponse[BranchResponse])
+@router.get(
+    "/{branch_id}",
+    dependencies=[Depends(require_permission("branches", action="view"))],
+    response_model=APIResponse[BranchResponse],
+)
 def get_branch_route(branch_id: str, db: Session = Depends(get_db)):
     db_branch = get_branch(db=db, branch_id=branch_id)
     if not db_branch:
@@ -71,7 +80,11 @@ def get_branch_route(branch_id: str, db: Session = Depends(get_db)):
     return success_response("Branch fetched successfully", db_branch)
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[list[BranchResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("branches", action="view"))],
+    response_model=APIResponse[list[BranchResponse]],
+)
 def get_branches_by_organization_route(
     organization_id: str,
     skip: int = 0,
@@ -86,7 +99,11 @@ def get_branches_by_organization_route(
     return success_response("Branches fetched successfully", branches)
 
 
-@router.put("/{branch_id}", response_model=APIResponse[BranchResponse])
+@router.put(
+    "/{branch_id}",
+    dependencies=[Depends(require_permission("branches", action="edit"))],
+    response_model=APIResponse[BranchResponse],
+)
 def update_branch_route(
     branch_id: str,
     branch_data: BranchUpdate,
@@ -105,7 +122,10 @@ def update_branch_route(
     return success_response("Branch updated successfully", updated_branch)
 
 
-@router.delete("/{branch_id}")
+@router.delete(
+    "/{branch_id}",
+    dependencies=[Depends(require_permission("branches", action="delete"))],
+)
 def delete_branch_route(branch_id: str, db: Session = Depends(get_db)):
     db_branch = get_branch(db=db, branch_id=branch_id)
     if not db_branch:
@@ -115,7 +135,11 @@ def delete_branch_route(branch_id: str, db: Session = Depends(get_db)):
     return success_response("Branch deleted successfully", data="")
 
 
-@router.post("/assign-users", response_model=APIResponse[list[BranchUserResponse]])
+@router.post(
+    "/assign-users",
+    dependencies=[Depends(require_permission("branches", action="edit"))],
+    response_model=APIResponse[list[BranchUserResponse]],
+)
 def assign_users_to_branches_route(
     payload: BranchUserAssignRequest,
     db: Session = Depends(get_db),
@@ -153,7 +177,11 @@ def assign_users_to_branches_route(
     return success_response("Users assigned to branch successfully", result)
 
 
-@router.get("/{branch_id}/users", response_model=APIResponse[list[BranchUserResponse]])
+@router.get(
+    "/{branch_id}/users",
+    dependencies=[Depends(require_permission("branches", action="view"))],
+    response_model=APIResponse[list[BranchUserResponse]],
+)
 def users_branch_route(
     branch_id: str,
     skip: int = 0,
@@ -169,3 +197,4 @@ def users_branch_route(
         return not_found_response("No users found in this branch", data=[])
         
     return success_response("Users fetched successfully", data=users)
+

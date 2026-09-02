@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.owner.routes.team_api import router as team_router
 from app.owner.routes.branch_api import router as branch_router
 from app.owner.routes.medical_api import router as medical_reps_router
@@ -13,8 +13,10 @@ from app.owner.routes.inventory_api import router as inventory_router
 from app.owner.routes.prescription_api import router as prescription_router
 from app.owner.routes.followup_api import router as followup_router
 from app.owner.routes.sales_api import router as sales_router
+from app.auth.controller.user_auth import get_current_user
 
-router = APIRouter()
+# Layer 1: only owner/staff roles can access any /owner/* route
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 router.include_router(team_router)
 router.include_router(branch_router)

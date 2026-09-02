@@ -36,11 +36,16 @@ from app.owner.controller.prescription import (
     calculate_followup_end_time_controller,
 )
 from app.utils.ApiResponse import success_response, error_response, not_found_response
+from app.utils.auth_utils import require_permission
 
 router = APIRouter(prefix="/owner/prescriptions", tags=["prescriptions"])
 
 
-@router.post("/create", response_model=APIResponse[PrescriptionResponse])
+@router.post(
+    "/create",
+    dependencies=[Depends(require_permission("prescriptions", action="create"))],
+    response_model=APIResponse[PrescriptionResponse],
+)
 def create_prescription_route(
     payload: PrescriptionCreate,
     db: Session = Depends(get_db)
@@ -49,7 +54,11 @@ def create_prescription_route(
     return success_response("Prescription created successfully", result)
 
 
-@router.get("/organization/{organization_id}", response_model=APIResponse[List[PrescriptionResponse]])
+@router.get(
+    "/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[List[PrescriptionResponse]],
+)
 def get_prescriptions_route(
     organization_id: str,
     db: Session = Depends(get_db)
@@ -58,7 +67,11 @@ def get_prescriptions_route(
     return success_response("Prescriptions fetched successfully", results)
 
 
-@router.get("/{prescription_id}/organization/{organization_id}", response_model=APIResponse[PrescriptionResponse])
+@router.get(
+    "/{prescription_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[PrescriptionResponse],
+)
 def get_prescription_route(
     prescription_id: str,
     organization_id: str,
@@ -70,7 +83,11 @@ def get_prescription_route(
     return success_response("Prescription fetched successfully", result)
 
 
-@router.put("/{prescription_id}/organization/{organization_id}", response_model=APIResponse[PrescriptionResponse])
+@router.put(
+    "/{prescription_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="edit"))],
+    response_model=APIResponse[PrescriptionResponse],
+)
 def update_prescription_route(
     prescription_id: str,
     organization_id: str,
@@ -88,7 +105,11 @@ def update_prescription_route(
     return success_response("Prescription updated successfully", result)
 
 
-@router.delete("/{prescription_id}/organization/{organization_id}", response_model=APIResponse[str])
+@router.delete(
+    "/{prescription_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="delete"))],
+    response_model=APIResponse[str],
+)
 def delete_prescription_route(
     prescription_id: str,
     organization_id: str,
@@ -100,8 +121,11 @@ def delete_prescription_route(
     return success_response("Prescription deleted successfully", data="")
 
 
-
-@router.post("/{prescription_id}/medication/organization/{organization_id}", response_model=APIResponse[PrescriptionMedicationResponse])
+@router.post(
+    "/{prescription_id}/medication/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="create"))],
+    response_model=APIResponse[PrescriptionMedicationResponse],
+)
 def create_medication_route(
     prescription_id: str,
     organization_id: str,
@@ -119,7 +143,11 @@ def create_medication_route(
     return success_response("Medication added to prescription successfully", result)
 
 
-@router.put("/medication/{medication_id}/organization/{organization_id}", response_model=APIResponse[PrescriptionMedicationResponse])
+@router.put(
+    "/medication/{medication_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="edit"))],
+    response_model=APIResponse[PrescriptionMedicationResponse],
+)
 def update_medication_route(
     medication_id: str,
     organization_id: str,
@@ -137,7 +165,11 @@ def update_medication_route(
     return success_response("Medication updated successfully", result)
 
 
-@router.delete("/medication/{medication_id}/organization/{organization_id}", response_model=APIResponse[str])
+@router.delete(
+    "/medication/{medication_id}/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="delete"))],
+    response_model=APIResponse[str],
+)
 def delete_medication_route(
     medication_id: str,
     organization_id: str,
@@ -148,7 +180,12 @@ def delete_medication_route(
         return not_found_response("Medication line item not found", data="")
     return success_response("Medication deleted successfully", data="")
 
-@router.patch("/{prescription_id}/status/organization/{organization_id}", response_model=APIResponse[bool])
+
+@router.patch(
+    "/{prescription_id}/status/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="edit"))],
+    response_model=APIResponse[bool],
+)
 def update_prescription_status_route(
     prescription_id: str,
     organization_id: str,
@@ -160,7 +197,11 @@ def update_prescription_status_route(
     return success_response("Prescription finalized successfully", True)
 
 
-@router.patch("/{prescription_id}/followup/organization/{organization_id}", response_model=APIResponse[PrescriptionResponse])
+@router.patch(
+    "/{prescription_id}/followup/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="edit"))],
+    response_model=APIResponse[PrescriptionResponse],
+)
 def toggle_followup_route(
     prescription_id: str,
     organization_id: str,
@@ -172,8 +213,11 @@ def toggle_followup_route(
     return success_response("Follow-up status toggled successfully", result)
 
 
-
-@router.get("/branches/organization/{organization_id}", response_model=APIResponse[List[BranchDropdownResponse]])
+@router.get(
+    "/branches/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[List[BranchDropdownResponse]],
+)
 def get_branch_dropdown_route(
     organization_id: str,
     db: Session = Depends(get_db)
@@ -182,7 +226,11 @@ def get_branch_dropdown_route(
     return success_response("Branch dropdown fetched successfully", options)
 
 
-@router.get("/doctors/organization/{organization_id}", response_model=APIResponse[List[DoctorDropdownResponse]])
+@router.get(
+    "/doctors/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[List[DoctorDropdownResponse]],
+)
 def get_doctor_dropdown_route(
     organization_id: str,
     db: Session = Depends(get_db)
@@ -191,7 +239,11 @@ def get_doctor_dropdown_route(
     return success_response("Doctor dropdown fetched successfully", options)
 
 
-@router.get("/patients/organization/{organization_id}", response_model=APIResponse[List[PatientDropdownResponse]])
+@router.get(
+    "/patients/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[List[PatientDropdownResponse]],
+)
 def get_patient_dropdown_route(
     organization_id: str,
     db: Session = Depends(get_db)
@@ -200,7 +252,11 @@ def get_patient_dropdown_route(
     return success_response("Patient dropdown fetched successfully", options)
 
 
-@router.get("/medications/organization/{organization_id}", response_model=APIResponse[List[MedicationDropdownResponse]])
+@router.get(
+    "/medications/organization/{organization_id}",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[List[MedicationDropdownResponse]],
+)
 def get_medication_names_route(
     organization_id: str,
     branch_id: str,
@@ -210,13 +266,21 @@ def get_medication_names_route(
     return success_response("Medication dropdown fetched successfully", options)
 
 
-@router.get("/followup-durations", response_model=APIResponse[List[FollowupDurationOptionResponse]])
+@router.get(
+    "/followup-durations",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[List[FollowupDurationOptionResponse]],
+)
 def get_followup_duration_types_route():
     options = get_followup_duration_types()
     return success_response("Follow-up duration options fetched successfully", options)
 
 
-@router.get("/calculate-followup-end-time", response_model=APIResponse[Optional[time]])
+@router.get(
+    "/calculate-followup-end-time",
+    dependencies=[Depends(require_permission("prescriptions", action="view"))],
+    response_model=APIResponse[Optional[time]],
+)
 def calculate_followup_end_time_route(
     followup_time: Optional[time] = None,
     followup_duration: Optional[int] = None,
@@ -226,3 +290,4 @@ def calculate_followup_end_time_route(
         return error_response("Both followup_time and followup_duration are required", data=None)
 
     return success_response("Follow-up end time calculated successfully", result)
+
