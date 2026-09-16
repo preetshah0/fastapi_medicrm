@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+.env
+
+LEARNING.md
+
+fastapi-saas-starter-main.zip
