@@ -36,6 +36,4 @@ def upgrade() -> None:
     
 
 def downgrade() -> None:
-    op.drop_index(op.f('ix_user_refresh_tokens_token'), table_name='user_refresh_tokens')
-    op.drop_index(op.f('ix_user_refresh_tokens_user_id'), table_name='user_refresh_tokens')
-    op.drop_table('user_refresh_tokens')
+    op.drop_table('user_refresh_tokens', if_exists=True)

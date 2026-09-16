@@ -7,6 +7,7 @@ from app.db.database import session
 from app.model.User import User
 from app.Enum.UserStatus import UserStatus
 from app.Enum.UserRole import UserRole
+from app.utils.ApiResponse import redirect_response
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -42,5 +43,5 @@ class AdminAuth(AuthenticationBackend):
 
     async def authenticate(self, request: Request):
         if not request.session.get("admin_id"):
-            return RedirectResponse(request.url_for("admin:login"), status_code=302)
+            return redirect_response(request.url_for("admin:login"))
         return True

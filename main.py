@@ -1,14 +1,17 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.core.redis import limiter
 from app.core.config import settings, Settings, get_settings
 from app.core.scheduler import scheduler, register_jobs
 from app.db.database import engine, init_db
+from app.utils.ApiResponse import validation_error_response
 # from app.db.seeder.PermissionSeeder import seed_permissions
 from app.model import User                 
 # from app.utils.auth_utils import AuthenticationException
@@ -43,9 +46,40 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8000",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Exception Handlers for consistent API responses
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    return validation_error_response(
+        message="Validation failed",
+        data=exc.errors(),
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc: HTTPException):
+    """
+    Handle HTTP exceptions and return consistent API response format.
+    """
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=jsonable_encoder({
+            "success": False,
+            "message": exc.detail if isinstance(exc.detail, str) else "Request failed",
+            "data": None if isinstance(exc.detail, str) else exc.detail,
+        }),
+    )
+
 # @app.exception_handler(AuthenticationException)
 # async def authentication_exception_handler(request, exc: AuthenticationException):
 #     """

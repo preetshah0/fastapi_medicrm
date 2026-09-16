@@ -15,6 +15,9 @@ from app.model.Inventory import Inventory, Batch
 from app.model.Prescription import Prescription, PrescriptionMedication
 from app.model.FollowUp import FollowUp, PrescriptionFollowUp, AppointmentFollowUp
 from app.model.Sale import Sale, SaleItem
+from app.model.Plan import Plan
+from app.model.Subscription import Subscription
+from app.model.Payment import Payment
 
 __all__ = [
     "User", 
@@ -50,4 +53,7 @@ __all__ = [
     "AppointmentFollowUp",
     "Sale",
     "SaleItem",
+    "Plan",
+    "Subscription",
+    "Payment",
 ]

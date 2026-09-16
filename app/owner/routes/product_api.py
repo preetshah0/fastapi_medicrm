@@ -43,7 +43,7 @@ def create_product_route(
         Product.sku == payload.sku
     ).first()
     if existing_sku:
-        return error_response("This SKU is already in use within your organization.", data="")
+        error_response("This SKU is already in use within your organization.", data="")
 
     # 2. Validate Branch
     branch = db.query(Branch).filter(
@@ -51,9 +51,9 @@ def create_product_route(
         Branch.organization_id == organization_id
     ).first()
     if not branch:
-        return not_found_response("The selected branch was not found.", data="")
+        not_found_response("The selected branch was not found.", data="")
     if hasattr(branch, "status") and str(branch.status).lower() not in ["active", BranchStatus.ACTIVE.value.lower()]:
-        return error_response("The selected branch is inactive. Please switch to an active branch.", data="")
+        error_response("The selected branch is inactive. Please switch to an active branch.", data="")
 
     # 3. Validate Category
     category = db.query(ProductCategory).filter(
@@ -62,7 +62,7 @@ def create_product_route(
         ProductCategory.is_active == True
     ).first()
     if not category:
-        return error_response("The selected category is invalid", data="")
+        error_response("The selected category is invalid", data="")
 
     # 4. Validate Master Options (Product Form)
     if payload.product_form_id:
@@ -73,7 +73,7 @@ def create_product_route(
             Master.is_active == True
         ).first()
         if not master_form:
-            return error_response("The selected product form is hidden or invalid. Please choose a visible option.", data="")
+            error_response("The selected product form is hidden or invalid. Please choose a visible option.", data="")
 
     # 5. Validate Master Options (Base Unit)
     if payload.base_unit_id:
@@ -84,7 +84,7 @@ def create_product_route(
             Master.is_active == True
         ).first()
         if not master_unit:
-            return error_response("The selected unit type is hidden or invalid. Please choose a visible option.", data="")
+            error_response("The selected unit type is hidden or invalid. Please choose a visible option.", data="")
 
     # 6. Validate Master Options (SubPack Size)
     if payload.size_id:
@@ -95,7 +95,7 @@ def create_product_route(
             Master.is_active == True
         ).first()
         if not master_size:
-            return error_response("The selected sub-pack type is hidden or invalid. Please choose a visible option.", data="")
+            error_response("The selected sub-pack type is hidden or invalid. Please choose a visible option.", data="")
 
     # 7. Validate Master Options (Outer Pack Size)
     if payload.outer_size_id:
@@ -106,11 +106,11 @@ def create_product_route(
             Master.is_active == True
         ).first()
         if not master_outer:
-            return error_response("The selected pack type is hidden or invalid. Please choose a visible option.", data="")
+            error_response("The selected pack type is hidden or invalid. Please choose a visible option.", data="")
 
     # 8. Validate low stock threshold
     if payload.low_stock_threshold < 1:
-        return error_response("Low stock threshold cannot be less than 1.", data="")
+        error_response("Low stock threshold cannot be less than 1.", data="")
 
     # Create Product via Controller
     product = create_product(db=db, product_data=payload, organization_id=organization_id)
@@ -155,7 +155,7 @@ def get_product_route(
 ):
     product = get_product_by_id(db=db, product_id=product_id, organization_id=organization_id)
     if not product:
-        return not_found_response("Product not found", data="")
+        not_found_response("Product not found", data="")
     return success_response("Product fetched successfully", product)
 
 
@@ -172,10 +172,10 @@ def update_product_route(
 ):
     product = get_product_by_id(db=db, product_id=product_id, organization_id=organization_id)
     if not product:
-        return not_found_response("Product not found", data="")
+        not_found_response("Product not found", data="")
 
     if payload.low_stock_threshold is not None and payload.low_stock_threshold < 1:
-        return error_response("Low stock threshold cannot be less than 1.", data="")
+        error_response("Low stock threshold cannot be less than 1.", data="")
 
     if payload.sku:
         existing_sku = db.query(Product).filter(
@@ -184,7 +184,7 @@ def update_product_route(
             Product.id != product_id
         ).first()
         if existing_sku:
-            return error_response("This SKU is already logged in your organization.", data="")
+            error_response("This SKU is already logged in your organization.", data="")
 
     result = update_product(
         db=db, 
@@ -193,7 +193,7 @@ def update_product_route(
         organization_id=organization_id
     )
     if not result:
-        return error_response("Failed to update product", data="")
+        error_response("Failed to update product", data="")
     return success_response("Product updated successfully", result)
 
 
@@ -209,6 +209,6 @@ def delete_product_route(
 ):
     result = delete_product(db=db, product_id=product_id, organization_id=organization_id)
     if not result:
-        return not_found_response("Product not found", data="")
+        not_found_response("Product not found", data="")
     return success_response("Product deleted successfully", data="")
 

@@ -79,7 +79,7 @@ def get_prescription_route(
 ):
     result = get_prescription_by_id(db=db, prescription_id=prescription_id, organization_id=organization_id)
     if not result:
-        return not_found_response("Prescription not found", data="")
+        not_found_response("Prescription not found", data="")
     return success_response("Prescription fetched successfully", result)
 
 
@@ -101,7 +101,7 @@ def update_prescription_route(
         organization_id=organization_id
     )
     if not result:
-        return not_found_response("Prescription not found", data="")
+        not_found_response("Prescription not found", data="")
     return success_response("Prescription updated successfully", result)
 
 
@@ -117,7 +117,7 @@ def delete_prescription_route(
 ):
     success = delete_prescription(db=db, prescription_id=prescription_id, organization_id=organization_id)
     if not success:
-        return not_found_response("Prescription not found", data="")
+        not_found_response("Prescription not found", data="")
     return success_response("Prescription deleted successfully", data="")
 
 
@@ -139,7 +139,7 @@ def create_medication_route(
         organization_id=organization_id
     )
     if not result:
-        return not_found_response("Prescription not found", data="")
+        not_found_response("Prescription not found", data="")
     return success_response("Medication added to prescription successfully", result)
 
 
@@ -161,7 +161,7 @@ def update_medication_route(
         organization_id=organization_id
     )
     if not result:
-        return not_found_response("Medication line item not found", data="")
+        not_found_response("Medication line item not found", data="")
     return success_response("Medication updated successfully", result)
 
 
@@ -177,7 +177,7 @@ def delete_medication_route(
 ):
     success = delete_medication(db=db, medication_id=medication_id, organization_id=organization_id)
     if not success:
-        return not_found_response("Medication line item not found", data="")
+        not_found_response("Medication line item not found", data="")
     return success_response("Medication deleted successfully", data="")
 
 
@@ -193,7 +193,7 @@ def update_prescription_status_route(
 ):
     success = update_prescription_status(db=db, prescription_id=prescription_id, organization_id=organization_id)
     if not success:
-        return error_response("Prescription cannot be finalized or it is already finalized", data=False)
+        error_response("Prescription cannot be finalized or it is already finalized", data=False)
     return success_response("Prescription finalized successfully", True)
 
 
@@ -209,7 +209,7 @@ def toggle_followup_route(
 ):
     result = toggle_followup(db=db, prescription_id=prescription_id, organization_id=organization_id)
     if not result:
-        return not_found_response("Prescription not found", data="")
+        not_found_response("Prescription not found", data="")
     return success_response("Follow-up status toggled successfully", result)
 
 
@@ -287,7 +287,7 @@ def calculate_followup_end_time_route(
 ):
     result = calculate_followup_end_time_controller(followup_time, followup_duration)
     if result is None:
-        return error_response("Both followup_time and followup_duration are required", data=None)
+        validation_error_response("Both followup_time and followup_duration are required", data="")
 
     return success_response("Follow-up end time calculated successfully", result)
 

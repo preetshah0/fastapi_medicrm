@@ -40,7 +40,7 @@ router = APIRouter(prefix="/auth/roles", tags=["roles"])
 def create_role_route(role: RoleCreate, db: Session = Depends(get_db)):
     existing_role = get_role_by_slug(db, role.name)
     if existing_role:
-        return error_response("Role already exists")
+        error_response("Role already exists")
     else:
         return success_response("Role created successfully", create_role(db, role))
 
@@ -62,7 +62,7 @@ def get_all_roles_route(skip: int = 0, limit: int = 100, db: Session = Depends(g
 def get_role_route(role_slug: str, db: Session = Depends(get_db)):
     db_role = get_role_by_slug(db, role_slug)
     if not db_role:
-        return not_found_response("Role not found")
+        not_found_response("Role not found")
     return success_response("Role fetched successfully", db_role)
 
 
@@ -74,7 +74,7 @@ def get_role_route(role_slug: str, db: Session = Depends(get_db)):
 def update_role_route(role_slug: str, role: RoleUpdate, db: Session = Depends(get_db)):
     db_role = get_role_by_slug(db, role_slug)
     if not db_role:
-        return not_found_response("Role not found")
+        not_found_response("Role not found")
     else:
         return success_response("Role updated successfully", update_role(db, role_slug, role))
 
@@ -98,7 +98,7 @@ def create_permission_route(permission: PermissionCreate, db: Session = Depends(
     slug = permission.slug if permission.slug else generate_slug(permission.permission)
     existing_permission = get_permission_by_slug(db, slug)
     if existing_permission:
-        return error_response("Permission already exists")
+        error_response("Permission already exists")
     else:
         return success_response("Permission created successfully", create_permission(db, permission))
 
@@ -111,7 +111,7 @@ def create_permission_route(permission: PermissionCreate, db: Session = Depends(
 def get_permission_route(permission_slug: str, db: Session = Depends(get_db)):
     db_perm = get_permission_by_slug(db, permission_slug)
     if not db_perm:
-        return not_found_response("Permission not found")
+        not_found_response("Permission not found")
     return success_response("Permission fetched successfully", db_perm)
 
 
@@ -123,7 +123,7 @@ def get_permission_route(permission_slug: str, db: Session = Depends(get_db)):
 def update_permission_route(permission_slug: str, permission: PermissionUpdate, db: Session = Depends(get_db)):
     db_perm = get_permission_by_slug(db, permission_slug)
     if not db_perm:
-        return not_found_response("Permission not found")
+        not_found_response("Permission not found")
     else:
         return success_response("Permission updated successfully", update_permission(db, permission_slug, permission))
 
@@ -146,10 +146,10 @@ def delete_permission_route(permission_slug: str, db: Session = Depends(get_db))
 def assign_permission_route(role_slug: str, permission_slug: str, db: Session = Depends(get_db)):
     db_role = get_role_by_slug(db, role_slug)
     if not db_role:
-        return not_found_response("Role not found")
+        not_found_response("Role not found")
     db_perm = get_permission_by_slug(db, permission_slug)
     if not db_perm:
-        return not_found_response("Permission not found")
+        not_found_response("Permission not found")
     return success_response("Permission assigned successfully", add_permission_to_role(db, db_role, db_perm))
 
 
@@ -161,8 +161,8 @@ def assign_permission_route(role_slug: str, permission_slug: str, db: Session = 
 def remove_permission_route(role_slug: str, permission_slug: str, db: Session = Depends(get_db)):
     db_role = get_role_by_slug(db, role_slug)
     if not db_role:
-        return not_found_response("Role not found")
+        not_found_response("Role not found")
     db_perm = get_permission_by_slug(db, permission_slug)
     if not db_perm:
-        return not_found_response("Permission not found")
+        not_found_response("Permission not found")
     return success_response("Permission removed successfully", remove_permission_from_role(db, db_role, db_perm))

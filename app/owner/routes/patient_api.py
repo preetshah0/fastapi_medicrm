@@ -49,14 +49,15 @@ from app.owner.controller.patient import (
     get_priority_enum,
 )
 from app.utils.auth_utils import get_current_user_id, require_permission
-from app.utils.ApiResponse import success_response, not_found_response, error_response
+from app.utils.plan_limits import check_feature_limit
+from app.utils.ApiResponse import success_response, not_found_response, error_response, validation_error_response
 
 router = APIRouter(prefix="/owner/patients", tags=["patients"])
 
 
 @router.post(
     "/create",
-    dependencies=[Depends(require_permission("patients", action="create"))],
+    dependencies=[Depends(require_permission("patients", action="create")), Depends(check_feature_limit("max_patients"))],
     response_model=APIResponse[PatientResponse],
 )
 def create_patient_route(
@@ -65,7 +66,7 @@ def create_patient_route(
 ):
     result = create_patient(db=db, patient=payload)
     if not result:
-        return error_response("Error creating patient or organization not found", data="")
+        error_response("Error creating patient or organization not found", data="")
 
     return success_response("Patient created successfully", result)
 
@@ -81,7 +82,7 @@ def get_patient_route(
 ):
     result = get_patient_by_id(db=db, patient_id=patient_id)
     if not result:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Patient fetched successfully", result)
 
@@ -97,7 +98,7 @@ def get_patients_by_organization_route(
 ):
     result = get_patients_by_organization(db=db, organization_id=organization_id)
     if result is None:
-        return not_found_response("Organization not found", data="")
+        not_found_response("Organization not found", data="")
 
     return success_response("Patients fetched successfully", result)
 
@@ -113,7 +114,7 @@ def get_patient_by_ref_code_route(
 ):
     result = get_patient(db=db, ref_code=ref_code)
     if not result:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Patient fetched successfully", result)
 
@@ -130,7 +131,7 @@ def update_patient_route(
 ):
     result = update_patient(db=db, patient_id=patient_id, patient=payload)
     if not result:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Patient updated successfully", result)
 
@@ -145,7 +146,7 @@ def delete_patient_route(
 ):
     result = delete_patient(db=db, patient_id=patient_id)
     if not result:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Patient deleted successfully", data="")
 
@@ -165,7 +166,7 @@ def create_note_route(
 ):
     result = create_note(db=db, note=payload, user_id=user_id)
     if not result:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Note created successfully", result)
 
@@ -181,7 +182,7 @@ def get_note_route(
 ):
     result = get_note(db=db, note_id=note_id)
     if not result:
-        return not_found_response("Note not found", data="")
+        not_found_response("Note not found", data="")
 
     return success_response("Note fetched successfully", result)
 
@@ -197,7 +198,7 @@ def get_patient_notes_route(
 ):
     result = get_notes_by_patient(db=db, patient_id=patient_id)
     if result is None:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Notes fetched successfully", result)
 
@@ -213,7 +214,7 @@ def get_all_notes_route(
 ):
     result = get_all_notes(db=db, user_id=user_id)
     if not result:
-        return not_found_response("Notes not found", data="")
+        not_found_response("Notes not found", data="")
 
     return success_response("Notes fetched successfully", result)
 
@@ -230,7 +231,7 @@ def update_note_route(
 ):
     result = update_note(db=db, note_id=note_id, note=payload)
     if not result:
-        return not_found_response("Note not found", data="")
+        not_found_response("Note not found", data="")
 
     return success_response("Note updated successfully", result)
 
@@ -246,7 +247,7 @@ def delete_note_route(
 ):
     result = delete_note(db=db, note_id=note_id)
     if not result:
-        return not_found_response("Note not found", data="")
+        not_found_response("Note not found", data="")
 
     return success_response("Note deleted successfully", data="")
 
@@ -265,7 +266,7 @@ def create_report_route(
 ):
     result = create_report(db=db, report=payload)
     if not result:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Report created successfully", result)
 
@@ -281,7 +282,7 @@ def get_report_route(
 ):
     result = get_report(db=db, report_id=report_id)
     if not result:
-        return not_found_response("Report not found", data="")
+        not_found_response("Report not found", data="")
 
     return success_response("Report fetched successfully", result)
 
@@ -297,7 +298,7 @@ def get_patient_reports_route(
 ):
     result = get_reports_by_patient(db=db, patient_id=patient_id)
     if result is None:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     return success_response("Reports fetched successfully", result)
 
@@ -312,7 +313,7 @@ def get_all_reports_route(
 ):
     result = get_all_reports(db=db)
     if not result:
-        return not_found_response("Reports not found", data="")
+        not_found_response("Reports not found", data="")
 
     return success_response("Reports fetched successfully", result)
 
@@ -329,7 +330,7 @@ def update_report_route(
 ):
     result = update_report(db=db, report_id=report_id, report=payload)
     if not result:
-        return not_found_response("Report not found", data="")
+        not_found_response("Report not found", data="")
 
     return success_response("Report updated successfully", result)
 
@@ -344,7 +345,7 @@ def delete_report_route(
 ):
     result = delete_report(db=db, report_id=report_id)
     if not result:
-        return not_found_response("Report not found", data="")
+        not_found_response("Report not found", data="")
 
     return success_response("Report deleted successfully", data="")
 
@@ -354,7 +355,7 @@ lab_referral_router = APIRouter(prefix="/owner/lab-referrals", tags=["lab-referr
 
 @lab_referral_router.post(
     "/create",
-    dependencies=[Depends(require_permission("lab_referrals", action="create"))],
+    dependencies=[Depends(require_permission("lab_referrals", action="create")), Depends(check_feature_limit("max_lab_referrals"))],
     response_model=APIResponse[PatientLabReferralResponse],
 )
 def create_lab_referral_route(
@@ -363,39 +364,39 @@ def create_lab_referral_route(
 ):
     patient = db.query(Patient).filter(Patient.id == payload.patient_id).first()
     if not patient:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     branch = db.query(Branch).filter(Branch.id == payload.branch_id).first()
     if not branch:
-        return not_found_response("Branch not found", data="")
+        not_found_response("Branch not found", data="")
 
     doctor = db.query(User).filter(User.id == payload.doctor_id).first()
     if not doctor:
-        return not_found_response("Doctor not found", data="")
+        not_found_response("Doctor not found", data="")
 
     lab = db.query(Laboratory).filter(Laboratory.id == payload.lab_id).first()
     if not lab:
-        return not_found_response("Laboratory not found", data="")
+        not_found_response("Laboratory not found", data="")
     if lab.facility_type != LaboratoryFacilityType.EXTERNAL.value:
-        return error_response("Referrals can only be made to external laboratories", data="")
+        error_response("Referrals can only be made to external laboratories", data="")
 
     if payload.report_id:
         report = db.query(Report).filter(Report.id == payload.report_id).first()
         if not report:
-            return not_found_response("Patient report not found", data="")
+            not_found_response("Patient report not found", data="")
 
     if not payload.tests_required or len(payload.tests_required) == 0:
-        return error_response("At least one required test must be provided for referral", data="")
+        validation_error_response("At least one required test must be provided for referral", data="")
 
     for test in payload.tests_required:
         if not test.test_name or not test.test_name.strip():
-            return error_response("Test name cannot be empty", data="")
+            validation_error_response("Test name cannot be empty", data="")
         if not test.test_code or not test.test_code.strip():
-            return error_response("Test code cannot be empty", data="")
+            validation_error_response("Test code cannot be empty", data="")
 
     result = create_patient_lab_referral(db=db, referral_data=payload)
     if not result:
-        return error_response("Failed to create lab referral", data="")
+        error_response("Failed to create lab referral", data="")
 
     return success_response("Lab referral created successfully", result)
 
@@ -421,7 +422,7 @@ def get_branch_dropdown_route(
 ):
     org = db.query(Organization).filter(Organization.id == organization_id).first()
     if not org:
-        return not_found_response("Organization not found", data="")
+        not_found_response("Organization not found", data="")
 
     result = get_branch_dropdown(db=db, organization_id=organization_id)
     return success_response("Branches dropdown fetched successfully", result)
@@ -438,7 +439,7 @@ def get_user_dropdown_route(
 ):
     org = db.query(Organization).filter(Organization.id == organization_id).first()
     if not org:
-        return not_found_response("Organization not found", data="")
+        not_found_response("Organization not found", data="")
 
     result = get_user_dropdown(db=db, organization_id=organization_id)
     return success_response("Doctors dropdown fetched successfully", result)
@@ -455,7 +456,7 @@ def get_lab_dropdown_route(
 ):
     org = db.query(Organization).filter(Organization.id == organization_id).first()
     if not org:
-        return not_found_response("Organization not found", data="")
+        not_found_response("Organization not found", data="")
 
     result = get_lab_dropdown(db=db, organization_id=organization_id)
     return success_response("External laboratories dropdown fetched successfully", result)
@@ -472,7 +473,7 @@ def get_report_dropdown_route(
 ):
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     if not patient:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     result = get_report_dropdown(db=db, patient_id=patient_id)
     return success_response("Reports dropdown fetched successfully", result)
@@ -489,7 +490,7 @@ def get_lab_referral_route(
 ):
     result = get_patient_lab_referral_by_id(db=db, referral_id=referral_id)
     if not result:
-        return not_found_response("Lab referral not found", data="")
+        not_found_response("Lab referral not found", data="")
 
     return success_response("Lab referral fetched successfully", result)
 
@@ -505,7 +506,7 @@ def get_patient_lab_referrals_route(
 ):
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     if not patient:
-        return not_found_response("Patient not found", data="")
+        not_found_response("Patient not found", data="")
 
     result = get_patient_lab_referrals_by_patient(db=db, patient_id=patient_id)
     return success_response("Patient lab referrals fetched successfully", result)
@@ -522,7 +523,7 @@ def get_organization_lab_referrals_route(
 ):
     org = db.query(Organization).filter(Organization.id == organization_id).first()
     if not org:
-        return not_found_response("Organization not found", data="")
+        not_found_response("Organization not found", data="")
 
     result = get_patient_lab_referrals_by_organization(db=db, organization_id=organization_id)
     return success_response("Organization lab referrals fetched successfully", result)

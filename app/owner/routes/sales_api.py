@@ -46,24 +46,24 @@ def create_sale_route(
 ):
     branch = db.query(Branch).filter(Branch.id == payload.branch_id).first()
     if not branch:
-        return error_response("Invalid branch selected", data=None)
+        error_response("Invalid branch selected", data=None)
     sales_type_val = payload.sales_type.value if hasattr(payload.sales_type, "value") else str(payload.sales_type)
     if sales_type_val == SaleType.INTERNAL.value or sales_type_val == "internal":
         if not payload.patient_id:
-            return error_response("Patient ID is required for internal sales", data=None)
+            error_response("Patient ID is required for internal sales", data=None)
 
     if not payload.items or len(payload.items) == 0:
-        return error_response("Sale must contain at least one item", data=None)
+        error_response("Sale must contain at least one item", data=None)
 
     try:
         result = create_sale(db=db, sale_data=payload)
         if not result:
-            return error_response("Failed to create sale record", data=None)
+            error_response("Failed to create sale record", data=None)
         return success_response("Sale created successfully", result)
     except HTTPException as e:
-        return error_response(e.detail, data=None)
+        error_response(e.detail, data=None)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.get(
@@ -98,7 +98,7 @@ def get_sales_route(
         )
         return success_response("Sales fetched successfully", results)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.get(
@@ -114,10 +114,10 @@ def get_sale_route(
     try:
         result = get_sale_by_id(db=db, sale_id=sale_id, organization_id=organization_id)
         if not result:
-            return not_found_response("Sale record not found", data=None)
+            not_found_response("Sale record not found", data=None)
         return success_response("Sale fetched successfully", result)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.put(
@@ -133,15 +133,15 @@ def update_sale_route(
 ):
     existing = get_sale_by_id(db=db, sale_id=sale_id, organization_id=organization_id)
     if not existing:
-        return not_found_response("Sale record not found", data=None)
+        not_found_response("Sale record not found", data=None)
 
     try:
         result = update_sale(db=db, sale_id=sale_id, sale_data=payload, organization_id=organization_id)
         return success_response("Sale updated successfully", result)
     except HTTPException as e:
-        return error_response(e.detail, data=None)
+        error_response(e.detail, data=None)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.post(
@@ -162,10 +162,10 @@ def dispense_sale_route(
 ):
     existing = get_sale_by_id(db=db, sale_id=sale_id, organization_id=organization_id)
     if not existing:
-        return not_found_response("Sale record not found", data=None)
+        not_found_response("Sale record not found", data=None)
 
     if existing.sales_status == SalesStatus.DISPENSED.value or existing.sales_status == "dispensed":
-        return error_response("Sale has already been dispensed", data=None)
+        error_response("Sale has already been dispensed", data=None)
 
     try:
         result = dispense_sale(
@@ -177,9 +177,9 @@ def dispense_sale_route(
         )
         return success_response("Sale dispensed and payment completed successfully", result)
     except HTTPException as e:
-        return error_response(e.detail, data=None)
+        error_response(e.detail, data=None)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.post(
@@ -200,13 +200,13 @@ def cancel_sale_route(
 ):
     existing = get_sale_by_id(db=db, sale_id=sale_id, organization_id=organization_id)
     if not existing:
-        return not_found_response("Sale record not found", data=None)
+        not_found_response("Sale record not found", data=None)
 
     if existing.sales_status in [SalesStatus.CANCELLED.value, "cancelled"]:
-        return error_response("Sale is already cancelled", data=None)
+        error_response("Sale is already cancelled", data=None)
 
     if existing.sales_status in [SalesStatus.DISPENSED.value, "dispensed"] or existing.payment_status in [SalePaymentStatus.PAID.value, "paid"]:
-        return error_response("Dispensed or paid sales cannot be cancelled", data=None)
+        error_response("Dispensed or paid sales cannot be cancelled", data=None)
 
     try:
         result = cancel_sale(
@@ -217,9 +217,9 @@ def cancel_sale_route(
         )
         return success_response("Sale cancelled and inventory restored successfully", result)
     except HTTPException as e:
-        return error_response(e.detail, data=None)
+        error_response(e.detail, data=None)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.delete(
@@ -234,15 +234,15 @@ def delete_sale_route(
 ):
     existing = get_sale_by_id(db=db, sale_id=sale_id, organization_id=organization_id)
     if not existing:
-        return not_found_response("Sale record not found", data=None)
+        not_found_response("Sale record not found", data=None)
 
     try:
         delete_sale(db=db, sale_id=sale_id, organization_id=organization_id)
         return success_response("Sale deleted successfully", {"id": sale_id})
     except HTTPException as e:
-        return error_response(e.detail, data=None)
+        error_response(e.detail, data=None)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 # Dropdown / Enum helper routes
@@ -259,7 +259,7 @@ def get_sale_branches(
         results = get_branch(db=db, organization_id=organization_id)
         return success_response("Branches fetched successfully", results)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.get(
@@ -275,7 +275,7 @@ def get_sale_prescriptions(
         results = get_prescription(db=db, organization_id=organization_id)
         return success_response("Prescriptions fetched successfully", results)
     except Exception as e:
-        return error_response(str(e), data=None)
+        error_response(str(e), data=None)
 
 
 @router.get(

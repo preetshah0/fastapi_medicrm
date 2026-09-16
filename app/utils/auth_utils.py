@@ -93,7 +93,7 @@ async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depend
     user_id = await decode_token(token, token_type="access")
 
     if not user_id:
-        return HTTP_401_RESPONSE("Invalid or expired token")
+        unauthorized_response("Invalid or expired token")
 
     return user_id
 
@@ -104,13 +104,13 @@ def get_current_user_object(
 ) -> User:
     user = get_user_by_id(db, user_id)
     if not user:
-        HTTP_401_RESPONSE("User not found")
+        unauthorized_response("User not found")
 
     if user.role == UserRole.ADMIN.value:
-        HTTP_401_RESPONSE("Admin users cannot access this resource")
+        unauthorized_response("Admin users cannot access this resource")
 
     if not user.organization_id:
-        HTTP_401_RESPONSE("User is not registered to any organization")
+        unauthorized_response("User is not registered to any organization")
 
     return user
 
@@ -129,7 +129,30 @@ def get_permission_slugs(user: User) -> set[str]:
 def require_permission(module: str, action: str = "view"):
     permission = f"{module}.{action}"
 
-    def guard(user: User = Depends(get_current_user_object)) -> User:
+    def guard(
+        db: Session = Depends(get_db),
+        user: User = Depends(get_current_user_object),
+    ) -> User:
+        # Check Organization's Active Subscription Plan Module Access
+        if user.organization_id:
+            from app.model.Subscription import Subscription
+            from app.Enum.SubscriptionStatus import SubscriptionStatus
+
+            sub = (
+                db.query(Subscription)
+                .filter(
+                    Subscription.organization_id == user.organization_id,
+                    Subscription.status == SubscriptionStatus.ACTIVE.value,
+                )
+                .first()
+            )
+            if sub and sub.plan and isinstance(sub.plan.modules, dict):
+                module_access = sub.plan.modules.get(module)
+                if module_access == 0 or module_access is False or module_access == "0":
+                    HTTP_403_RESPONSE(
+                        f"Access denied. Module '{module}' is disabled in your organization's subscription plan."
+                    )
+
         slugs = get_permission_slugs(user)
 
         if "*" in slugs or permission in slugs:

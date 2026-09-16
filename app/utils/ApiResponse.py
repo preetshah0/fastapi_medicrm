@@ -14,33 +14,45 @@ def success_response(message="Success", data=None):
     )
 
 def error_response(message="Error", data=None):
-    return JSONResponse(
+    raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content=jsonable_encoder({
+        detail = {
             "success": False,
             "message": message,
             "data": data,
-        }),
+        }
     )
 
-def not_found_response(message="Resource not found", data=None):
-    return JSONResponse(
-        status_code=status.HTTP_404_NOT_FOUND,
-        content=jsonable_encoder({
+
+def validation_error_response(message="Validation failed", data=None):
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail={
             "success": False,
             "message": message,
             "data": data,
-        }),
+        }
+    )
+
+
+def not_found_response(message="Resource not found", data=None):
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail = {
+            "success": False,
+            "message": message,
+            "data": data,
+        }
     )
 
 def unauthorized_response(message="Unauthorized", data=None):
-    return JSONResponse(
+    raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        content=jsonable_encoder({
+        detail = {
             "success": False,
             "message": message,
             "data": data,
-        }),
+        }
     )
 
 def redirect_response(url: str):
@@ -49,15 +61,7 @@ def redirect_response(url: str):
         status_code=status.HTTP_302_FOUND
     )
 
-def HTTP_401_RESPONSE(message="Unauthorized", data=None):
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail={
-            "success": False,
-            "message": message,
-            "data": data,
-        },
-    )
+
 
 def HTTP_403_RESPONSE(message="Forbidden", data=None):
     raise HTTPException(

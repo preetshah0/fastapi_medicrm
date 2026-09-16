@@ -36,7 +36,7 @@ def login(db: Session, email: str, password: str):
    
     user = authenticate_user(db, email, password)
     if not user or user.role != UserRole.ADMIN.value:
-        return unauthorized_response("Invalid admin credentials")
+        unauthorized_response("Invalid admin credentials")
 
     access_token = create_access_token({"sub": user.id})
     refresh_token = create_refresh_token({"sub": user.id})
@@ -76,7 +76,7 @@ def refresh_token(db: Session, refresh_token_str: str):
         JSONResponse: new access token
     """
     if not refresh_token_str:
-        return unauthorized_response("Refresh token is required", data = "")
+        unauthorized_response("Refresh token is required", data = "")
 
     user_id = None
     try:
@@ -84,26 +84,26 @@ def refresh_token(db: Session, refresh_token_str: str):
         payload = jwt.decode(refresh_token_str, secret_key, algorithms=["HS256"])
         user_id = payload.get("sub")
     except Exception:
-        return unauthorized_response("Invalid or expired refresh token", data = "")
+        unauthorized_response("Invalid or expired refresh token", data = "")
 
     if not user_id:
-        return unauthorized_response("Invalid refresh token", data = "")
+        unauthorized_response("Invalid refresh token", data = "")
 
     stored_token = db.query(UserRefreshToken).filter(UserRefreshToken.token == refresh_token_str).first()
     if not stored_token or stored_token.deleted_at is not None:
-        return unauthorized_response("Invalid refresh token", data = "")
+        unauthorized_response("Invalid refresh token", data = "")
 
     if stored_token.expires_at and stored_token.expires_at <= datetime.utcnow():
         db.delete(stored_token)
         db.commit()
-        return unauthorized_response("Refresh token has expired", data = "")
+        unauthorized_response("Refresh token has expired", data = "")
 
     user = get_user_by_id(db, user_id)
     if not user:
-        return not_found_response("User not found", data = "")
+        not_found_response("User not found", data = "")
 
     if user.role != UserRole.ADMIN.value:
-        return unauthorized_response("User is not allowed to refresh admin tokens", data = "")
+        unauthorized_response("User is not allowed to refresh admin tokens", data = "")
 
     access_token = create_access_token({"sub": user.id})
     new_refresh_token = create_refresh_token({"sub": user.id})
@@ -125,11 +125,11 @@ def refresh_token(db: Session, refresh_token_str: str):
 def logout(db: Session, refresh_token_str: str):
    
     if not refresh_token_str:
-        return error_response("Refresh token is required", data = "")
+        error_response("Refresh token is required", data = "")
 
     stored_token = db.query(UserRefreshToken).filter(UserRefreshToken.token == refresh_token_str).first()
     if not stored_token:
-        return error_response("Invalid refresh token", data = "")
+        error_response("Invalid refresh token", data = "")
 
     db.delete(stored_token)
     db.commit()
@@ -143,10 +143,10 @@ def get_admin_user(
 ):
     user = get_user_by_id(db, user_id)
     if not user:
-        return HTTP_401_RESPONSE("User not found")
+        unauthorized_response("User not found")
 
     if user.role != UserRole.ADMIN.value:
-        return HTTP_401_RESPONSE("Only admin users may access this resource")
+        unauthorized_response("Only admin users may access this resource")
 
     return success_response(
         "Admin user loaded",
