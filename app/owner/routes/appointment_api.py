@@ -26,15 +26,16 @@ from app.owner.controller.appointment import (
     update_appointment_status,
     delete_appointment,
 )
-from app.utils.ApiResponse import success_response, not_found_response, error_response
+from app.utils.ApiResponse import success_response, not_found_response, error_response, validation_error_response
 from app.utils.auth_utils import require_permission
+from app.utils.plan_limits import check_feature_limit
 
 router = APIRouter(prefix="/owner/appointments", tags=["appointments"])
 
 
 @router.post(
     "/create",
-    dependencies=[Depends(require_permission("appointments", action="create"))],
+    dependencies=[Depends(require_permission("appointments", action="create")), Depends(check_feature_limit("max_appointments"))],
     response_model=APIResponse[AppointmentResponse],
 )
 def create_appointment_route(
@@ -43,7 +44,7 @@ def create_appointment_route(
 ):
     result = create_appointment(db=db, payload=payload)
     if not result:
-        return error_response("Error creating appointment. Verify branch, doctor, and patient IDs.", data="")
+        error_response("Error creating appointment. Verify branch, doctor, and patient IDs.", data="")
     return success_response("Appointment created and logged successfully", result)
 
 
@@ -74,7 +75,7 @@ def get_available_appointment_slots_route(
     try:
         appointment_date_parsed = datetime.fromisoformat(appointment_date).date()
     except Exception:
-        return error_response("Invalid appointment_date format. Use YYYY-MM-DD.", data="")
+        validation_error_response("Invalid appointment_date format. Use YYYY-MM-DD.", data="")
 
     result = get_available_appointment_slots_for_branch(
         db=db,
@@ -84,7 +85,7 @@ def get_available_appointment_slots_route(
         duration_minutes=int(duration_minutes),
     )
     if result is None:
-        return error_response("Branch not found.", data="")
+        error_response("Branch not found.", data="")
     return success_response("Available slots fetched successfully", result)
 
 
@@ -111,7 +112,7 @@ def get_appointment_route(
 ):
     result = get_appointment_by_id(db=db, appointment_id=appointment_id)
     if not result:
-        return not_found_response("Appointment not found", data="")
+        not_found_response("Appointment not found", data="")
     return success_response("Appointment fetched successfully", result)
 
 
@@ -140,11 +141,11 @@ def update_appointment_route(
 ):
     existing_appointment = get_appointment_by_id(db=db, appointment_id=appointment_id)
     if existing_appointment and existing_appointment.status == AppointmentStatus.OVERDUE.value:
-        return error_response("Cannot update an overdue appointment", data="")
+        error_response("Cannot update an overdue appointment", data="")
 
     result = update_appointment(db=db, appointment_id=appointment_id, payload=payload)
     if not result:
-        return not_found_response("Appointment not found", data="")
+        not_found_response("Appointment not found", data="")
     return success_response("Appointment updated successfully", result)
 
 
@@ -160,11 +161,11 @@ def update_appointment_status_route(
 ):
     existing_appointment = get_appointment_by_id(db=db, appointment_id=appointment_id)
     if existing_appointment and existing_appointment.status == AppointmentStatus.OVERDUE.value:
-        return error_response("Cannot change status of an overdue appointment", data="")
+        error_response("Cannot change status of an overdue appointment", data="")
 
     result = update_appointment_status(db=db, appointment_id=appointment_id, payload=payload)
     if not result:
-        return not_found_response("Appointment not found", data="")
+        not_found_response("Appointment not found", data="")
     return success_response("Appointment status updated and logged successfully", result)
 
 
@@ -178,6 +179,6 @@ def delete_appointment_route(
 ):
     result = delete_appointment(db=db, appointment_id=appointment_id)
     if not result:
-        return not_found_response("Appointment not found", data="")
+        not_found_response("Appointment not found", data="")
     return success_response("Appointment deleted successfully", data="")
 

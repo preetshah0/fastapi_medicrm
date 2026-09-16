@@ -30,7 +30,7 @@ def mark_visited_route(
 ):
     result = mark_followup_visited(db=db, followup_id=followup_id, organization_id=organization_id)
     if not result:
-        return not_found_response("Follow-up not found", data="")
+        not_found_response("Follow-up not found", data="")
     return success_response("Follow-up marked as visited successfully", result)
 
 
@@ -46,7 +46,7 @@ def mark_contacted_route(
 ):
     result = mark_followup_contacted(db=db, followup_id=followup_id, organization_id=organization_id)
     if not result:
-        return not_found_response("Follow-up not found", data="")
+        not_found_response("Follow-up not found", data="")
     return success_response("Follow-up marked as contacted successfully", result)
 
 
@@ -62,7 +62,7 @@ def mark_cancelled_route(
 ):
     result = mark_followup_cancelled(db=db, followup_id=followup_id, organization_id=organization_id)
     if not result:
-        return not_found_response("Follow-up not found", data="")
+        not_found_response("Follow-up not found", data="")
     return success_response("Follow-up marked as cancelled successfully", result)
 
 
@@ -86,6 +86,6 @@ def reschedule_followup_route(
         new_duration=payload.new_duration
     )
     if not result:
-        return not_found_response("Follow-up not found", data="")
+        not_found_response("Follow-up not found", data="")
     return success_response("Follow-up rescheduled successfully", result)
 

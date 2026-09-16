@@ -20,7 +20,7 @@ router = APIRouter(prefix="/admin/organization", tags=["organization"])
 def create_org(org: OrganizationCreate, db: Session = Depends(get_db)):
     owner_role = get_role_by_name(db, "owner")
     if not owner_role:
-        return not_found_response("Role not found")
+        not_found_response("Role not found")
     
     db_org = create_organization(db=db, organization=org, owner_role=owner_role)
     return success_response("Organization created successfully", db_org)
@@ -30,7 +30,7 @@ def create_org(org: OrganizationCreate, db: Session = Depends(get_db)):
 def get_org(ref: str, db: Session = Depends(get_db)):
     db_org = get_organization(db=db, ref=ref)
     if not db_org:
-        return not_found_response("Organization not found")
+        not_found_response("Organization not found")
     
     return success_response("Organization fetched successfully", db_org)
 
@@ -39,7 +39,7 @@ def get_org(ref: str, db: Session = Depends(get_db)):
 def update_org(ref: str, org: OrganizationUpdate, db: Session = Depends(get_db)):
     db_org_check = get_organization(db=db, ref=ref)
     if not db_org_check:
-        return not_found_response("Organization not found")
+        not_found_response("Organization not found")
 
     db_org = update_organization(db=db, db_org=db_org_check, organization=org)
     return success_response("Organization updated successfully", db_org)
@@ -49,7 +49,7 @@ def update_org(ref: str, org: OrganizationUpdate, db: Session = Depends(get_db))
 def delete_org(ref: str, db: Session = Depends(get_db)):
     db_org = get_organization(db=db, ref=ref)
     if not db_org:
-        return not_found_response("Organization not found")
+        not_found_response("Organization not found")
     
     delete_organization(db=db, db_org=db_org)
     return success_response("Organization deleted successfully", data="")

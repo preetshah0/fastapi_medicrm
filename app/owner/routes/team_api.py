@@ -14,13 +14,14 @@ from app.owner.controller.teams import (
 )
 from app.utils.ApiResponse import success_response, not_found_response
 from app.utils.auth_utils import require_permission
+from app.utils.plan_limits import check_feature_limit
 
 router = APIRouter(prefix="/owner/teams", tags=["teams"])
 
 
 @router.post(
     "/add",
-    dependencies=[Depends(require_permission("team", action="create"))],
+    dependencies=[Depends(require_permission("team", action="create")), Depends(check_feature_limit("max_staff"))],
     response_model=APIResponse[UserResponse],
 )
 def add_user_route(user: UserCreate, db: Session = Depends(get_db)):
@@ -35,7 +36,7 @@ def add_user_route(user: UserCreate, db: Session = Depends(get_db)):
 def get_user_route(user_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
-        return not_found_response("User not found")
+        not_found_response("User not found")
     return success_response("User fetched successfully", db_user)
 
 
@@ -64,7 +65,7 @@ def get_users_route(
 def update_user_route(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
-        return not_found_response("User not found")
+        not_found_response("User not found")
     return success_response("User updated successfully", update_user(db, db_user, user))
 
 
@@ -75,7 +76,7 @@ def update_user_route(user_id: str, user: UserUpdate, db: Session = Depends(get_
 def delete_user_route(user_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
-        return not_found_response("User not found")
+        not_found_response("User not found")
     delete_user(db, db_user)
     return success_response("User deleted successfully", data="")
 
@@ -88,10 +89,10 @@ def delete_user_route(user_id: str, db: Session = Depends(get_db)):
 def assign_role_route(user_id: str, role_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
-        return not_found_response("User not found")
+        not_found_response("User not found")
     db_role = db.query(Role).filter(Role.id == role_id).first()
     if not db_role:
-        return not_found_response("Role not found")
+        not_found_response("Role not found")
     return success_response("Role assigned successfully", assign_role_to_user(db, db_user, db_role))
 
 
@@ -103,9 +104,9 @@ def assign_role_route(user_id: str, role_id: str, db: Session = Depends(get_db))
 def remove_role_route(user_id: str, role_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id)
     if not db_user:
-        return not_found_response("User not found")
+        not_found_response("User not found")
     db_role = db.query(Role).filter(Role.id == role_id).first()
     if not db_role:
-        return not_found_response("Role not found")
+        not_found_response("Role not found")
     return success_response("Role removed successfully", remove_role_from_user(db, db_user, db_role))
 

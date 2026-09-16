@@ -32,7 +32,7 @@ def get_role_by_slug(db: Session, role_slug: str) -> Role:
 def update_role(db: Session, role_slug: str, role_update: RoleUpdate) -> Role:
     db_role = get_role_by_slug(db, role_slug)
     # if not db_role:
-    #     return error_response("Role not found", data="")
+    #     error_response("Role not found", data="")
 
     update_data = role_update.dict(exclude_unset=True)
     if "name" in update_data and "slug" not in update_data:
@@ -41,7 +41,7 @@ def update_role(db: Session, role_slug: str, role_update: RoleUpdate) -> Role:
     if "slug" in update_data:
         existing_item = db.query(Role).filter(Role.slug == update_data["slug"]).first()
         if existing_item and existing_item.id != db_role.id:
-            return error_response("Role with this slug already exists", data="")
+            error_response("Role with this slug already exists", data="")
 
     for key, value in update_data.items():
         setattr(db_role, key, value)
@@ -53,7 +53,7 @@ def update_role(db: Session, role_slug: str, role_update: RoleUpdate) -> Role:
 def delete_role(db: Session, role_slug: str) -> bool:
     db_role = get_role_by_slug(db, role_slug)
     if not db_role:
-        return error_response("Role not found", data="")
+        error_response("Role not found", data="")
     db.delete(db_role)
     db.commit()
     return success_response("Role deleted successfully", data="")
@@ -83,7 +83,7 @@ def create_permission(db: Session, permission: PermissionCreate) -> Permissions:
 def update_permission(db: Session, permission_slug: str, permission_update: PermissionUpdate) -> Permissions:
     db_permission = get_permission_by_slug(db, permission_slug)
     if not db_permission:
-        return error_response("Permission not found", data="")
+        error_response("Permission not found", data="")
 
     update_data = permission_update.dict(exclude_unset=True)
     if "permission" in update_data and "slug" not in update_data:
@@ -92,7 +92,7 @@ def update_permission(db: Session, permission_slug: str, permission_update: Perm
     if "slug" in update_data:
         existing_item = db.query(Permissions).filter(Permissions.slug == update_data["slug"]).first()
         if existing_item and existing_item.id != db_permission.id:
-            return error_response("Permission with this slug already exists", data="")
+            error_response("Permission with this slug already exists", data="")
 
     for key, value in update_data.items():
         setattr(db_permission, key, value)
@@ -104,7 +104,7 @@ def update_permission(db: Session, permission_slug: str, permission_update: Perm
 def delete_permission(db: Session, permission_slug: str) -> bool:
     db_permission = get_permission_by_slug(db, permission_slug)
     if not db_permission:
-        return error_response("Permission not found", data="")
+        error_response("Permission not found", data="")
     db.delete(db_permission)
     db.commit()
     return success_response("Permission deleted successfully", data="")

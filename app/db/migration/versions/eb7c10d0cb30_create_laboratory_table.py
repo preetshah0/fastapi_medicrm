@@ -29,7 +29,7 @@ def upgrade() -> None:
         sa.Column('contact_person',sa.String(255),nullable=True),
         sa.Column('facility_type',sa.String(255),nullable=False,server_default='internal'),
         sa.Column('lab_type',sa.String(255),nullable=True),
-        sa.Column('lab_type_id',sa.String(36),sa.ForeignKey('master_options.id', ondelete='SET NULL'),nullable=False),
+        sa.Column('lab_type_id', sa.String(36), nullable=True),
         sa.Column('address',sa.String(255),nullable=True),
         sa.Column('city',sa.String(255),nullable=True),
         sa.Column('pincode',sa.String(255),nullable=True),

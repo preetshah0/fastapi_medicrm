@@ -55,7 +55,7 @@ def get_product_categories_route(
 def get_product_category_by_slug_route(slug: str, db: Session = Depends(get_db)):
     category = get_product_category_by_slug(db, slug)
     if not category:
-        return not_found_response("Product category not found", data="")
+        not_found_response("Product category not found", data="")
     return success_response("Product category fetched successfully", category)
 
 
@@ -72,11 +72,11 @@ def create_product_category_route(
     slug = payload.slug if payload.slug else generate_slug(payload.name)
     existing = db.query(ProductCategory).filter(ProductCategory.slug == slug).first()
     if existing:
-        return error_response("Product category already exists", data="")
+        error_response("Product category already exists", data="")
 
     result = create_product_category(db=db, product_category=payload, organization_id=organization_id)
     if not result:
-        return error_response("Failed to create product category", data="")
+        error_response("Failed to create product category", data="")
 
     return success_response("Product category created successfully", result)
 
@@ -89,7 +89,7 @@ def create_product_category_route(
 def get_product_category_route(category_id: str, db: Session = Depends(get_db)):
     category = get_product_category_by_id(db, category_id)
     if not category:
-        return not_found_response("Product category not found", data="")
+        not_found_response("Product category not found", data="")
     return success_response("Product category fetched successfully", category)
 
 
@@ -105,7 +105,7 @@ def update_product_category_route(
 ):
     result = update_product_category(db=db, category_id=category_id, payload=payload)
     if not result:
-        return error_response("Failed to update product category or duplicate slug exists", data="")
+        error_response("Failed to update product category or duplicate slug exists", data="")
     return success_response("Product category updated successfully", result)
 
 
@@ -116,6 +116,6 @@ def update_product_category_route(
 def delete_product_category_route(category_id: str, db: Session = Depends(get_db)):
     result = delete_product_category(db=db, category_id=category_id)
     if not result:
-        return not_found_response("Product category not found", data="")
+        not_found_response("Product category not found", data="")
     return success_response("Product category deleted successfully", data="")
 

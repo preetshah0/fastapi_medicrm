@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column('id', sa.String(36), primary_key=True),
         sa.Column('organization_id', sa.String(36), sa.ForeignKey('organizations.id', ondelete='CASCADE'), nullable=False),
         sa.Column('branch_id', sa.String(36), sa.ForeignKey('branches.id', ondelete='CASCADE'), nullable=False),
-        sa.Column('category_id', sa.String(36), sa.ForeignKey('product_categories.id', ondelete='SET NULL'), nullable=False),
+        sa.Column('category_id', sa.String(36), sa.ForeignKey('product_categories.id', ondelete='SET NULL'), nullable=True),
         sa.Column('product_form_id', sa.String(36), sa.ForeignKey('master_options.id', ondelete='SET NULL'), nullable=True),
         sa.Column('size_id', sa.String(36), sa.ForeignKey('master_options.id', ondelete='SET NULL'), nullable=True),
         sa.Column('outer_size_id', sa.String(36), sa.ForeignKey('master_options.id', ondelete='SET NULL'), nullable=True),

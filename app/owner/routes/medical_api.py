@@ -36,11 +36,11 @@ def create_medical_rep_route(branch_id: str, payload: MedicalRepsCreate, db: Ses
     ).first()
 
     if db_email:
-        return error_response("Medical Representative already existed for this branch", data="")
+        error_response("Medical Representative already existed for this branch", data="")
     
     result = create_medical_representatives(db=db, branch_id=branch_id, medical_rep_data=payload)
     if not result:
-        return error_response("Branch not found", data="")
+        error_response("Branch not found", data="")
         
     return success_response("Medical Representative created successfully", result)
 
@@ -52,7 +52,7 @@ def create_medical_rep_route(branch_id: str, payload: MedicalRepsCreate, db: Ses
 def update_medical_rep_route(medical_rep_id: str, payload: MedicalRepsUpdate, db: Session = Depends(get_db)):
     existing_rep = db.query(MedicalReps).filter(MedicalReps.id == medical_rep_id).first()
     if not existing_rep:
-        return not_found_response("Medical Representative not found", data="")
+        not_found_response("Medical Representative not found", data="")
 
     if payload.company_email:
         db_email = db.query(MedicalReps).filter(
@@ -61,11 +61,11 @@ def update_medical_rep_route(medical_rep_id: str, payload: MedicalRepsUpdate, db
             MedicalReps.id != medical_rep_id
         ).first()
         if db_email:
-            return error_response("Medical Representative already existed for this branch", data="")
+            error_response("Medical Representative already existed for this branch", data="")
 
     result = update_medical_representatives(db=db, medical_rep_id=medical_rep_id, medical_rep_data=payload)
     if not result:
-        return not_found_response("Medical Representative not found", data="")
+        not_found_response("Medical Representative not found", data="")
     return success_response("Medical Representative updated successfully", result)
 
 @router.delete(
@@ -75,7 +75,7 @@ def update_medical_rep_route(medical_rep_id: str, payload: MedicalRepsUpdate, db
 def delete_medical_rep_route(medical_rep_id: str, db: Session = Depends(get_db)):
     result = delete_medical_representatives(db=db, medical_rep_id=medical_rep_id)
     if not result:
-        return not_found_response("Medical Representative not found", data="")
+        not_found_response("Medical Representative not found", data="")
     return success_response("Medical Representative deleted successfully", data="")
 
 @router.get(
@@ -86,7 +86,7 @@ def delete_medical_rep_route(medical_rep_id: str, db: Session = Depends(get_db))
 def get_medical_reps_by_branch_route(branch_id: str, db: Session = Depends(get_db)):
     result = get_medical_representatives(db=db, branch_id=branch_id)
     if not result:
-        return not_found_response("Medical Representatives not found", data="")
+        not_found_response("Medical Representatives not found", data="")
     return success_response("Medical Representatives fetched successfully", result)
 
 @router.post(
@@ -97,7 +97,7 @@ def get_medical_reps_by_branch_route(branch_id: str, db: Session = Depends(get_d
 def create_mr_visit_route(medical_rep_id: str, payload: MedicalRepVisitCreate, db: Session = Depends(get_db)):
     result = create_mr_visit(db=db, medical_rep_id=medical_rep_id, mr_visit_data=payload)
     if not result:
-        return not_found_response("MR Visit not found", data="")
+        not_found_response("MR Visit not found", data="")
     
     return success_response("MR Visit created successfully", result)
 
@@ -109,7 +109,7 @@ def create_mr_visit_route(medical_rep_id: str, payload: MedicalRepVisitCreate, d
 def get_mr_visits_route(medical_rep_id: str, db: Session = Depends(get_db)):
     result = get_mr_visit(db=db, medical_rep_id=medical_rep_id)
     if not result:
-        return not_found_response("MR Visits not found", data="")
+        not_found_response("MR Visits not found", data="")
     return success_response("MR Visits fetched successfully", result)
 
 @router.get(
@@ -120,6 +120,6 @@ def get_mr_visits_route(medical_rep_id: str, db: Session = Depends(get_db)):
 def get_products_by_company_route(medical_rep_id: str, db: Session = Depends(get_db)):
     result = get_product(db=db, medical_rep_id=medical_rep_id)
     if not result:
-        return not_found_response("Company products not found", data="")
+        not_found_response("Company products not found", data="")
     return success_response("Company products fetched successfully", result)
 

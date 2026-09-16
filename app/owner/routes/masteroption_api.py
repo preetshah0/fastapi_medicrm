@@ -75,11 +75,11 @@ def create_master_option_route(
     ).first()
 
     if existing:
-        return error_response(f"Master option with name '{payload.name}' already exists for type '{type_value}'.", data="")
+        error_response(f"Master option with name '{payload.name}' already exists for type '{type_value}'.", data="")
 
     result = create_master_option(db=db, master_option_data=payload, organization_id=organization_id)
     if not result:
-        return error_response("Failed to create master option", data="")
+        error_response("Failed to create master option", data="")
 
     return success_response("Master option created successfully", result)
 
@@ -120,7 +120,7 @@ def get_master_option_route(
 ):
     master_option = get_master_option_by_id(db=db, master_option_id=master_option_id, organization_id=organization_id)
     if not master_option:
-        return not_found_response("Master option not found", data="")
+        not_found_response("Master option not found", data="")
     return success_response("Master option fetched successfully", master_option)
 
 
@@ -137,7 +137,7 @@ def update_master_option_route(
 ):
     master_option = get_master_option_by_id(db=db, master_option_id=master_option_id, organization_id=organization_id)
     if not master_option:
-        return not_found_response("Master option not found", data="")
+        not_found_response("Master option not found", data="")
 
     if payload.name is not None:
         new_slug = generate_slug(payload.name)
@@ -149,7 +149,7 @@ def update_master_option_route(
             Master.id != master_option_id
         ).first()
         if existing:
-            return error_response(f"Master option with name '{payload.name}' already exists for type '{target_type}'.", data="")
+            error_response(f"Master option with name '{payload.name}' already exists for type '{target_type}'.", data="")
 
     result = update_master_option(
         db=db,
@@ -158,7 +158,7 @@ def update_master_option_route(
         organization_id=organization_id
     )
     if not result:
-        return error_response("Failed to update master option", data="")
+        error_response("Failed to update master option", data="")
 
     return success_response("Master option updated successfully", result)
 
@@ -175,7 +175,7 @@ def delete_master_option_route(
 ):
     master_option = get_master_option_by_id(db=db, master_option_id=master_option_id, organization_id=organization_id)
     if not master_option:
-        return not_found_response("Master option not found", data="")
+        not_found_response("Master option not found", data="")
 
     delete_master_option(db=db, master_option_id=master_option_id, organization_id=organization_id)
     return success_response("Master option deleted successfully", data="")

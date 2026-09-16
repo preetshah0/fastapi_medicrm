@@ -129,7 +129,7 @@ def get_inventory_route(
 ):
     inventory = get_inventory_by_id(db=db, inventory_id=inventory_id, organization_id=organization_id)
     if not inventory:
-        return not_found_response("Inventory record not found", data="")
+        not_found_response("Inventory record not found", data="")
     return success_response("Inventory fetched successfully", inventory)
 
 
@@ -151,7 +151,7 @@ def update_inventory_route(
         organization_id=organization_id
     )
     if not result:
-        return not_found_response("Inventory record not found", data="")
+        not_found_response("Inventory record not found", data="")
     return success_response("Inventory updated successfully", result)
 
 
@@ -167,7 +167,7 @@ def delete_inventory_route(
 ):
     success = delete_inventory(db=db, inventory_id=inventory_id, organization_id=organization_id)
     if not success:
-        return not_found_response("Inventory record not found", data="")
+        not_found_response("Inventory record not found", data="")
     return success_response("Inventory deleted successfully", data="")
 
 
@@ -211,7 +211,7 @@ def update_batch_route(
         organization_id=organization_id
     )
     if not result:
-        return not_found_response("Batch record not found", data="")
+        not_found_response("Batch record not found", data="")
     return success_response("Batch updated successfully", result)
 
 
@@ -227,7 +227,7 @@ def delete_batch_route(
 ):
     success = delete_batch(db=db, batch_id=batch_id, organization_id=organization_id)
     if not success:
-        return not_found_response("Batch record not found", data="")
+        not_found_response("Batch record not found", data="")
     return success_response("Batch deleted successfully", data="")
 
 

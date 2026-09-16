@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from app.model.Inventory import Inventory
     from app.model.FollowUp import FollowUp
     from app.model.Sale import Sale
+    from app.model.Plan import Plan
+    from app.model.Subscription import Subscription
+    from app.model.Payment import Payment
 
 class Organization(Base):
     __tablename__ = "organizations"
@@ -163,33 +166,17 @@ class Organization(Base):
         cascade="all, delete-orphan"
     )
 
-    # # --- hasMany Subscriptions ---
-    # subscriptions: Mapped[list["Subscription"]] = relationship(
-    #     "Subscription",
-    #     back_populates="organization",
-    #     cascade="all, delete-orphan"
-    # )
+    subscriptions: Mapped[list["Subscription"]] = relationship(
+        "Subscription",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )
 
-    # # --- hasOne Active Subscription ---
-    # active_subscription: Mapped["Subscription"] = relationship(
-    #     "Subscription",
-    #     primaryjoin="and_(Subscription.organization_id == Organization.id, Subscription.status == 'active')",
-    #     foreign_keys="Subscription.organization_id",
-    #     order_by="desc(Subscription.created_at)",
-    #     viewonly=True,
-    #     uselist=False
-    # )
-
-    # # --- hasOne Latest Subscription ---
-    # latest_subscription: Mapped["Subscription"] = relationship(
-    #     "Subscription",
-    #     primaryjoin="Subscription.organization_id == Organization.id",
-    #     foreign_keys="Subscription.organization_id",
-    #     order_by="desc(Subscription.created_at)",
-    #     viewonly=True,
-    #     uselist=False,
-    #     overlaps="subscriptions,active_subscription"
-    # )
+    payments: Mapped[list["Payment"]] = relationship(
+        "Payment",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )
 
     # # =========================================
     # # METHODS (like Laravel's model methods)

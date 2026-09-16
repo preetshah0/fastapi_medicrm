@@ -32,3 +32,8 @@ def upgrade() -> None:
     sa.Column('created_at',sa.DateTime,server_default=sa.text('CURRENT_TIMESTAMP')),
     sa.Column('updated_at',sa.DateTime,server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')),
     )
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    op.drop_table('supplier_visits')
