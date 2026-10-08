@@ -49,6 +49,9 @@ def create_plan(db:Session, plan:PlanCreate):
         max_patients = plan.max_patients,
         max_staff = plan.max_staff,
         max_lab_referrals = plan.max_lab_referrals,
+        stripe_product_id = plan.stripe_product_id,
+        stripe_monthly_price_id = plan.stripe_monthly_price_id,
+        stripe_yearly_price_id = plan.stripe_yearly_price_id,
     )
     db.add(db_plan)
     db.commit()

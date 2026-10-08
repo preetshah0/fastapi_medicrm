@@ -35,6 +35,9 @@ def upgrade() -> None:
         sa.Column('max_patients', sa.Integer, nullable=True),
         sa.Column('max_staff', sa.Integer, nullable=True),
         sa.Column('max_lab_referrals', sa.Integer, nullable=True),
+        sa.Column('stripe_product_id', sa.String(255), nullable=True),
+        sa.Column('stripe_monthly_price_id', sa.String(255), nullable=True),
+        sa.Column('stripe_yearly_price_id', sa.String(255), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
         sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')),
     )

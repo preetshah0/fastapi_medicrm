@@ -26,6 +26,7 @@ def create_organization(db: Session, organization: OrganizationCreate) -> Organi
         ref=generate_ref(organization.organization_name),
         status=OrganizationStatus.ACTIVE.value,
         profile_photo=organization.profile_photo,
+        stripe_customer_id=organization.stripe_customer_id,
     )
     db.add(db_org)
   
@@ -71,7 +72,7 @@ def get_organization(db: Session, ref: str) -> Organization:
 def update_organization(db: Session, db_org: Organization, organization: OrganizationUpdate) -> Organization:
     update_data = organization.model_dump(exclude_unset=True, mode='json')
 
-    org_fields = ["organization_name", "organization_email", "address", "status", "profile_photo"]
+    org_fields = ["organization_name", "organization_email", "address", "status", "profile_photo", "stripe_customer_id"]
     for field in org_fields:
         if field in update_data and update_data[field] is not None:
             setattr(db_org, field, update_data[field])

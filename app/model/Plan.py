@@ -33,6 +33,9 @@ class Plan(Base):
     max_patients: Mapped[int | None] = mapped_column(nullable=True)
     max_staff: Mapped[int | None] = mapped_column(nullable=True)
     max_lab_referrals: Mapped[int | None] = mapped_column(nullable=True)
+    stripe_product_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_monthly_price_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_yearly_price_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, server_default=PlanStatus.DRAFT.value
     )

@@ -49,11 +49,12 @@ class Subscription(Base):
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, server_default=SubscriptionStatus.ACTIVE.value
     )
-    # provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    # provider_subscription_id: Mapped[str | None] = mapped_column(
-    #     String(255), nullable=True, unique=True
-    # )
-    # provider_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, unique=True
+    )
+    stripe_checkout_session_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP")
     )
