@@ -4,8 +4,7 @@ from fastapi import APIRouter, Depends
 
 from app.db.database import get_db
 from app.db.schemas import APIResponse
-from app.db.schemas.plan import PlanCreate, PlanUpdate, PlanResponse
-from app.Enum.PlanStatus import PlanStatus
+from app.db.schemas.plan import PlanCreate, PlanUpdate, PlanStatusUpdate, PlanResponse
 from app.model.Plan import Plan
 from app.model.Subscription import Subscription
 from app.admin.controller.plan import (
@@ -15,6 +14,7 @@ from app.admin.controller.plan import (
     get_plan,
     get_plans,
     update_plan,
+    update_plan_status,
     toggle_plan_status,
     delete_plan,
 )
@@ -73,17 +73,12 @@ def create_plan_route(
 
 @router.get("", response_model=APIResponse[List[PlanResponse]])
 def get_plans_route(
-    status: Optional[str] = None,
+    status: Optional[bool] = None,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
 ):
     """List all plans with optional status filtering."""
-    if status and status not in [s.value for s in PlanStatus]:
-        validation_error_response(
-            f"Invalid status filter. Allowed values: {[s.value for s in PlanStatus]}", data=""
-        )
-
     result = get_plans(db=db, status=status, skip=skip, limit=limit)
     return success_response("Plans fetched successfully", result)
 
@@ -148,16 +143,13 @@ def toggle_plan_status_route(
     plan_id: str,
     db: Session = Depends(get_db),
 ):
-    """Toggle plan status between ACTIVE and INACTIVE."""
     db_plan = get_plan(db=db, plan_id=plan_id)
     if not db_plan:
         not_found_response("Plan not found.", data="")
 
-    if db_plan.status == PlanStatus.DRAFT.value:
-        error_response("Draft plans must be published before status can be toggled.", data="")
-
     result = toggle_plan_status(db=db, db_plan=db_plan)
-    return success_response(f"Plan status updated to '{result.status}'", result)
+    status_label = "active" if result.status else "inactive"
+    return success_response(f"Plan status updated to '{status_label}'", result)
 
 
 @router.delete("/{plan_id}")

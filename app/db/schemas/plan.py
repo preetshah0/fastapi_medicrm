@@ -4,8 +4,6 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.Enum.PlanStatus import PlanStatus
-
 
 class PlanBase(BaseModel):
     name: str
@@ -22,7 +20,7 @@ class PlanBase(BaseModel):
     stripe_yearly_price_id: Optional[str] = None
 
 class PlanCreate(PlanBase):
-    status: PlanStatus = PlanStatus.DRAFT
+    status: bool = True
 
 
 class PlanUpdate(BaseModel):
@@ -38,13 +36,17 @@ class PlanUpdate(BaseModel):
     stripe_product_id: Optional[str] = None
     stripe_monthly_price_id: Optional[str] = None
     stripe_yearly_price_id: Optional[str] = None
-    status: Optional[PlanStatus] = None
+    status: Optional[bool] = None
+
+
+class PlanStatusUpdate(BaseModel):
+    status: bool
 
 
 class PlanResponse(PlanBase):
     id: str
     slug: str
-    status: PlanStatus
+    status: bool
     created_at: datetime
     updated_at: datetime
 

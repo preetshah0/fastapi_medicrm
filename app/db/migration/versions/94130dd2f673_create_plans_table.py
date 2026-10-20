@@ -29,7 +29,7 @@ def upgrade() -> None:
         sa.Column('monthly_price', sa.Numeric(10, 2), nullable=False, server_default='0.00'),
         sa.Column('yearly_price', sa.Numeric(10, 2), nullable=False, server_default='0.00'),
         sa.Column('tagline', sa.Text, nullable=True),
-        sa.Column('status', sa.String(50), nullable=False, server_default='draft'),
+        sa.Column('status', sa.Boolean(), nullable=False, server_default=sa.text('1')),
         sa.Column('modules', sa.JSON, nullable=False, server_default=sa.text("('{}')")),
         sa.Column('max_appointments', sa.Integer, nullable=True),
         sa.Column('max_patients', sa.Integer, nullable=True),
