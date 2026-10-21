@@ -7,6 +7,7 @@ from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
+from app.Enum.PaymentStatus import PaymentStatus
 
 if TYPE_CHECKING:
     from app.model.Organization import Organization
@@ -29,17 +30,22 @@ class Payment(Base):
     currency: Mapped[str] = mapped_column(
         String(3), nullable=False, default="INR", server_default=text("'INR'")
     )
-    # payment_mode: Mapped[str] = mapped_column(
-    #     String(50), nullable=False, server_default=text("'manual'")
-    # )
-    # provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    # provider_payment_id: Mapped[str | None] = mapped_column(
-    #     String(255), nullable=True, unique=True
-    # )
+    payment_mode: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="gateway", server_default=text("'gateway'")
+    )
+    provider: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="stripe", server_default=text("'stripe'")
+    )
+    provider_payment_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, unique=True, index=True
+    )
+    provider_invoice_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, index=True
+    )
     paid_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    # status: Mapped[str] = mapped_column(
-    #     String(50), nullable=False, server_default=text("'pending'")
-    # )
+    status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default=PaymentStatus.PENDING.value, server_default=text(f"'{PaymentStatus.PENDING.value}'")
+    )
     reference_no: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(

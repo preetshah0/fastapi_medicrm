@@ -18,6 +18,8 @@ class SubscriptionBase(BaseModel):
     auto_renew: AutoRenew = AutoRenew.ACTIVE
     cancelled_at: Optional[datetime] = None
     status: SubscriptionStatus = SubscriptionStatus.ACTIVE
+    stripe_subscription_id: Optional[str] = None
+    stripe_checkout_session_id: Optional[str] = None
 
 
 class SubscriptionCreate(SubscriptionBase):
@@ -30,6 +32,8 @@ class SubscriptionUpdate(BaseModel):
     auto_renew: Optional[AutoRenew] = None
     cancelled_at: Optional[datetime] = None
     status: Optional[SubscriptionStatus] = None
+    stripe_subscription_id: Optional[str] = None
+    stripe_checkout_session_id: Optional[str] = None
 
 
 class SubscriptionResponse(SubscriptionBase):

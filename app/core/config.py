@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     REDIS_URL: str
 
+class StripeSettings(BaseSettings):
+    STRIPE_SECRET_KEY: str
+    STRIPE_PUBLISHABLE_KEY: str
+    STRIPE_WEBHOOK_SECRET: str
+    DOMAIN: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -23,4 +28,9 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     return Settings()
 
+@lru_cache
+def get_stripe_settings() -> StripeSettings:
+    return StripeSettings()
+
 settings = get_settings()
+stripe_settings = get_stripe_settings()

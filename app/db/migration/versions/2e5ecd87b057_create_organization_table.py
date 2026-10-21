@@ -34,6 +34,7 @@ def upgrade():
         # sa.Column('plan_id', sa.String(36), nullable=True),
         # sa.ForeignKeyConstraint(['plan_id'], ['plan.id'], ondelete='SET NULL'),
         sa.Column('profile_photo', sa.String(255), nullable=True),
+        sa.Column('stripe_customer_id', sa.String(255), nullable=True),
         sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP')),
         sa.Column('updated_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')),
         sa.Column('deleted_at', sa.DateTime(), nullable=True)

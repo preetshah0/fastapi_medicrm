@@ -18,7 +18,11 @@ def generate_ref(title: str) -> str:
     return f"{prefix}#{random.randint(1000, 9999)}"
 
 
-def create_organization(db: Session, organization: OrganizationCreate) -> Organization:
+def create_organization(
+    db: Session,
+    organization: OrganizationCreate,
+    owner_role: Role ,
+) -> Organization:
     db_org = Organization(
         organization_name=organization.organization_name,
         organization_email=organization.organization_email,
@@ -26,8 +30,12 @@ def create_organization(db: Session, organization: OrganizationCreate) -> Organi
         ref=generate_ref(organization.organization_name),
         status=OrganizationStatus.ACTIVE.value,
         profile_photo=organization.profile_photo,
+        stripe_customer_id=organization.stripe_customer_id,
     )
     db.add(db_org)
+    db.flush()
+
+    role_name = owner_role.name if owner_role else UserRole.OWNER.value
   
     db_owner = User(
         name=organization.owner_name,
@@ -35,12 +43,15 @@ def create_organization(db: Session, organization: OrganizationCreate) -> Organi
         password=hash_password(organization.password),
         phone=organization.owner_phone,
         specialization=organization.owner_specialization,
-        role=UserRole.OWNER.value,
+        role=role_name,
         status=UserStatus.ACTIVE.value,
         description=organization.owner_description,
         profile_photo=organization.owner_profile_photo,
         organization_id=db_org.id,
     )
+
+    if owner_role:
+        db_owner.roles.append(owner_role)
 
     db.add(db_owner)
 
@@ -71,7 +82,7 @@ def get_organization(db: Session, ref: str) -> Organization:
 def update_organization(db: Session, db_org: Organization, organization: OrganizationUpdate) -> Organization:
     update_data = organization.model_dump(exclude_unset=True, mode='json')
 
-    org_fields = ["organization_name", "organization_email", "address", "status", "profile_photo"]
+    org_fields = ["organization_name", "organization_email", "address", "status", "profile_photo", "stripe_customer_id"]
     for field in org_fields:
         if field in update_data and update_data[field] is not None:
             setattr(db_org, field, update_data[field])

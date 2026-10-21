@@ -14,6 +14,7 @@ class OrganizationBase(BaseModel):
     # annual_discount: Optional[float] = 0.0
     # plan_type: OrganizationPlanType = OrganizationPlanType.MONTHLY
     profile_photo: Optional[str] = None
+    stripe_customer_id: Optional[str] = None
 
 class OrganizationCreate(OrganizationBase):
     owner_name: str
@@ -48,6 +49,7 @@ class OrganizationUpdate(BaseModel):
     # plan_type: Optional[str] = "monthly"
     status: Optional[OrganizationStatus] = None
     profile_photo: Optional[str] = None
+    stripe_customer_id: Optional[str] = None
 
     owner_name: Optional[str] = None
     owner_email: Optional[str] = None

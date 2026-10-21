@@ -3,10 +3,9 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import DateTime, JSON, Numeric, String, text
+from sqlalchemy import Boolean, DateTime, JSON, Numeric, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.Enum.PlanStatus import PlanStatus
 from app.db.database import Base
 
 if TYPE_CHECKING:
@@ -33,8 +32,11 @@ class Plan(Base):
     max_patients: Mapped[int | None] = mapped_column(nullable=True)
     max_staff: Mapped[int | None] = mapped_column(nullable=True)
     max_lab_referrals: Mapped[int | None] = mapped_column(nullable=True)
-    status: Mapped[str] = mapped_column(
-        String(50), nullable=False, server_default=PlanStatus.DRAFT.value
+    stripe_product_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_monthly_price_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_yearly_price_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("1")
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP")

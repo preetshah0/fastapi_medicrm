@@ -38,6 +38,7 @@ class Organization(Base):
     # phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     address: Mapped[str | None] = mapped_column(Text(), nullable=True)
     profile_photo: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # --- Plan ---
     # plan_id: Mapped[str | None] = mapped_column(
