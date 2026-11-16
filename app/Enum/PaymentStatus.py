@@ -5,6 +5,7 @@ class PaymentStatus(str, Enum):
     PROCESSING = "processing"
     PAID = "paid"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
     @property
     def label(self) -> str:
@@ -13,5 +14,6 @@ class PaymentStatus(str, Enum):
             self.PROCESSING: "Processing",
             self.PAID: "Paid",
             self.FAILED: "Failed",
+            self.CANCELLED: "Cancelled",
         }
         return labels.get(self, self.value)
