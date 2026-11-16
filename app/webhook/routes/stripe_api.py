@@ -11,6 +11,7 @@ from app.services.stripe_webhook_service import (
     handle_customer_subscription_deleted,
     handle_customer_subscription_updated,
     handle_payment_intent_processing,
+    handle_payment_intent_canceled,
 )
 
 logger = logging.getLogger(__name__)
@@ -61,6 +62,9 @@ async def stripe_webhook(
 
         case "payment_intent.processing":
             handle_payment_intent_processing(payment_intent=data_object, db=db)
+
+        case "payment_intent.canceled":
+            handle_payment_intent_canceled(payment_intent=data_object, db=db)
 
         case _:
             logger.debug(f"Unhandled Stripe webhook event: {event_type}")

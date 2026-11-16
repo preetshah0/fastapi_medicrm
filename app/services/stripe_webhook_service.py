@@ -267,3 +267,23 @@ def handle_payment_intent_processing(payment_intent: dict, db: Session):
         db.commit()
         return payment
     return False
+
+
+def handle_payment_intent_canceled(payment_intent: dict, db: Session):
+    pi_id = payment_intent.get("id")
+    if not pi_id:
+        return False
+
+    invoice_id = payment_intent.get("invoice")
+    payment = (
+        db.query(Payment)
+        .filter(
+            (Payment.provider_payment_id == pi_id) | (Payment.provider_invoice_id == invoice_id)
+        )
+        .first()
+    )
+    if payment and payment.status != PaymentStatus.PAID.value:
+        payment.status = PaymentStatus.CANCELLED.value
+        db.commit()
+        return payment
+    return False
