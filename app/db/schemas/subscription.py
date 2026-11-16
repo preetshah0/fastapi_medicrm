@@ -45,3 +45,11 @@ class SubscriptionResponse(SubscriptionBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class AdminSubscriptionResponse(SubscriptionResponse):
+    organization_name: Optional[str] = None
+    organization_ref: Optional[str] = None
+    plan_name: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)

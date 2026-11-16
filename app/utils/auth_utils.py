@@ -136,6 +136,27 @@ async def get_current_admin(
     return user
 
 
+async def get_any_authenticated_user(
+    db: Session = Depends(get_db),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> User:
+    """
+    Dependency for general authenticated endpoints (e.g. Media Upload).
+    Validates JWT token and ensures user exists in DB, allowing both Admins and Org users.
+    """
+    token = credentials.credentials
+    user_id = await decode_token(token, token_type="access")
+
+    if not user_id:
+        unauthorized_response("Invalid or expired token")
+
+    user = get_user_by_id(db, user_id)
+    if not user:
+        unauthorized_response("User not found")
+
+    return user
+
+
 def get_permission_slugs(user: User) -> set[str]:
     if user.role in (UserRole.ADMIN.value, UserRole.OWNER.value):
         return {"*"}
