@@ -15,7 +15,8 @@ from app.owner.routes.followup_api import router as followup_router
 from app.owner.routes.sales_api import router as sales_router
 from app.owner.routes.subscription_api import router as subscription_router
 from app.owner.routes.payment_api import router as payment_router
-from app.auth.controller.user_auth import get_current_user
+from app.owner.routes.profile_api import router as profile_router
+from app.utils.auth_utils import get_current_user
 
 # Layer 1: only owner/staff roles can access any /owner/* route
 router = APIRouter(dependencies=[Depends(get_current_user)])
@@ -39,6 +40,7 @@ router.include_router(followup_router)
 router.include_router(sales_router)
 router.include_router(subscription_router)
 router.include_router(payment_router)
+router.include_router(profile_router)
 
 
 

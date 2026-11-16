@@ -48,7 +48,7 @@ from app.owner.controller.patient import (
     get_report_dropdown,
     get_priority_enum,
 )
-from app.utils.auth_utils import get_current_user_id, require_permission
+from app.utils.auth_utils import get_current_user, require_permission
 from app.utils.plan_limits import check_feature_limit
 from app.utils.ApiResponse import success_response, not_found_response, error_response, validation_error_response
 
@@ -162,9 +162,9 @@ notes_router = APIRouter(prefix="/owner/notes", tags=["notes"])
 def create_note_route(
     payload: NoteCreate,
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
+    current_user: User = Depends(get_current_user),
 ):
-    result = create_note(db=db, note=payload, user_id=user_id)
+    result = create_note(db=db, note=payload, user_id=current_user.id)
     if not result:
         not_found_response("Patient not found", data="")
 
@@ -210,9 +210,9 @@ def get_patient_notes_route(
 )
 def get_all_notes_route(
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
+    current_user: User = Depends(get_current_user),
 ):
-    result = get_all_notes(db=db, user_id=user_id)
+    result = get_all_notes(db=db, user_id=current_user.id)
     if not result:
         not_found_response("Notes not found", data="")
 
@@ -243,7 +243,6 @@ def update_note_route(
 def delete_note_route(
     note_id: str,
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
 ):
     result = delete_note(db=db, note_id=note_id)
     if not result:

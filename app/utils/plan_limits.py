@@ -8,7 +8,7 @@ from app.model.Patient import Patient, PatientLabReferral
 from app.model.Appointment import Appointment
 from app.model.Branch import Branch
 from app.Enum.SubscriptionStatus import SubscriptionStatus
-from app.utils.auth_utils import get_current_user_object
+from app.utils.auth_utils import get_current_user
 from app.utils.ApiResponse import HTTP_403_RESPONSE
 
 
@@ -25,7 +25,7 @@ def check_feature_limit(feature_name: str):
     """
     def guard(
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user_object),
+        current_user: User = Depends(get_current_user),
     ) -> User:
         subscription = (
             db.query(Subscription)
