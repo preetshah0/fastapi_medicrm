@@ -115,6 +115,20 @@ def get_current_user_object(
     return user
 
 
+def get_current_admin_object(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user_id),
+):
+    user = get_user_by_id(db, user_id)
+    if not user:
+        unauthorized_response("User not found")
+
+    if user.role != UserRole.ADMIN.value:
+        unauthorized_response("Only admin users may access this resource")
+
+    return user
+
+
 def get_permission_slugs(user: User) -> set[str]:
     if user.role in (UserRole.ADMIN.value, UserRole.OWNER.value):
         return {"*"}
