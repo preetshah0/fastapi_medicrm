@@ -14,7 +14,7 @@ from app.model.User import User
 from app.model.Subscription import Subscription
 from app.Enum.SubscriptionStatus import SubscriptionStatus
 from app.Enum.AutoRenew import AutoRenew
-from app.auth.controller.user_auth import get_current_user
+from app.utils.auth_utils import get_current_user
 from app.owner.controller.subscription import (
     checkout_session,
     cancel_active_subscription,

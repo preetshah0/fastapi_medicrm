@@ -4,7 +4,7 @@ from app.db.database import get_db
 from app.db.schemas import APIResponse
 from app.db.schemas.payment import PaymentResponse
 from app.model.User import User
-from app.auth.controller.user_auth import get_current_user
+from app.utils.auth_utils import get_current_user
 from app.owner.controller.payment import get_organization_payments
 from app.utils.ApiResponse import success_response, unauthorized_response
 

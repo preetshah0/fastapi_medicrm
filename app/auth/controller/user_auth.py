@@ -11,20 +11,15 @@ from app.utils.ApiResponse import (
     error_response,
     not_found_response,
     unauthorized_response,
-    unauthorized_response,
 )
 from app.utils.auth_utils import (
     authenticate_user,
     create_access_token,
     create_refresh_token,
-    decode_token,
-    get_user,
     get_user_by_id,
-    get_current_user_id,
-    get_current_user_object,
+    get_current_user,
 )
 from app.core.config import settings
-from app.db.database import get_db
 from fastapi import Depends
 
 
@@ -155,7 +150,7 @@ def logout(db: Session, refresh_token_str: str):
 
 
 
-def get_current_user(user: User = Depends(get_current_user_object)):
+def get_current_user_json(user: User = Depends(get_current_user)):
     return success_response(
         "User loaded",
         data={

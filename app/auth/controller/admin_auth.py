@@ -1,4 +1,4 @@
-from app.utils.auth_utils import get_current_user_id
+from app.utils.auth_utils import get_current_admin
 from app.utils.ApiResponse import *
 from datetime import datetime, timedelta
 
@@ -138,23 +138,15 @@ def logout(db: Session, refresh_token_str: str):
 
 
 def get_admin_user(
-    db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
+    admin: User = Depends(get_current_admin),
 ):
-    user = get_user_by_id(db, user_id)
-    if not user:
-        unauthorized_response("User not found")
-
-    if user.role != UserRole.ADMIN.value:
-        unauthorized_response("Only admin users may access this resource")
-
     return success_response(
         "Admin user loaded",
         data={
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "role": user.role,
-            "status": user.status,
+            "id": admin.id,
+            "name": admin.name,
+            "email": admin.email,
+            "role": admin.role,
+            "status": admin.status,
         },
     )

@@ -14,7 +14,6 @@ from app.db.schemas.patient import (
 from app.db.schemas.branch import BranchDropdownResponse
 from app.db.schemas.user import UserDropdownResponse
 from app.db.schemas.labs import LabDropdownResponse
-from app.utils.auth_utils import get_current_user_id
 
 
 def generate_patient_ref(db: Session, organization_id: str, organization_name: str, patient_name: str) -> str:
@@ -167,7 +166,7 @@ def delete_report(db: Session, report_id: str):
     return db_report
 
 
-def create_note(db: Session, note: NoteCreate, user_id: str = Depends(get_current_user_id)):
+def create_note(db: Session, note: NoteCreate, user_id: str):
     patient = db.query(Patient).filter(Patient.id == note.patient_id).first()
     if not patient:
         return None

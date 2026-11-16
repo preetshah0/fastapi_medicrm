@@ -88,20 +88,20 @@ async def decode_token(token: str, key: str | None = None, token_type: str = "ac
 security = HTTPBearer()
 
 
-async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+async def get_current_user(
+    db: Session = Depends(get_db),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> User:
+    """
+    Authentication dependency for Organization Panel (/owner/*).
+    Validates JWT access token, queries user, and verifies organization association.
+    """
     token = credentials.credentials
     user_id = await decode_token(token, token_type="access")
 
     if not user_id:
         unauthorized_response("Invalid or expired token")
 
-    return user_id
-
-
-def get_current_user_object(
-    db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
-) -> User:
     user = get_user_by_id(db, user_id)
     if not user:
         unauthorized_response("User not found")
@@ -115,10 +115,17 @@ def get_current_user_object(
     return user
 
 
-def get_current_admin_object(
+async def get_current_admin(
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
-):
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> User:
+
+    token = credentials.credentials
+    user_id = await decode_token(token, token_type="access")
+
+    if not user_id:
+        unauthorized_response("Invalid or expired token")
+
     user = get_user_by_id(db, user_id)
     if not user:
         unauthorized_response("User not found")
@@ -145,7 +152,7 @@ def require_permission(module: str, action: str = "view"):
 
     def guard(
         db: Session = Depends(get_db),
-        user: User = Depends(get_current_user_object),
+        user: User = Depends(get_current_user),
     ) -> User:
         # Check Organization's Active Subscription Plan Module Access
         if user.organization_id:
