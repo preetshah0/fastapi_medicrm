@@ -12,3 +12,7 @@ class BillingPeriod(str, Enum):
             self.YEARLY: "Yearly",
         }
         return labels[self]
+
+    @property
+    def stripe_interval(self) -> str:
+        return "month" if self == self.MONTHLY else "year"

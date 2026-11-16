@@ -18,6 +18,7 @@ from app.model import User
 from app.auth.routes.router import router as auth_router
 from app.admin.routes.router import router as admin_router
 from app.owner.routes.router import router as owner_router
+from app.webhook.routes.router import router as webhook_router
 # from app.admin.auth import AdminAuth
 # from app.admin.views.user_view import UserAdmin
 # from app.admin.views.organization_view import OrganizationAdmin
@@ -98,6 +99,7 @@ async def http_exception_handler(request, exc: HTTPException):
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(owner_router)
+app.include_router(webhook_router)
 
 
 @app.get('/')

@@ -146,12 +146,20 @@ def require_permission(module: str, action: str = "view"):
                 )
                 .first()
             )
-            if sub and sub.plan and isinstance(sub.plan.modules, dict):
-                module_access = sub.plan.modules.get(module)
-                if module_access == 0 or module_access is False or module_access == "0":
-                    HTTP_403_RESPONSE(
-                        f"Access denied. Module '{module}' is disabled in your organization's subscription plan."
-                    )
+            if not sub:
+                HTTP_403_RESPONSE(
+                    "Access denied. No active subscription found for your organization. Please subscribe to continue."
+                )
+
+            if not sub.plan or not isinstance(sub.plan.modules, dict):
+                HTTP_403_RESPONSE(
+                    "Access denied. Invalid subscription plan configuration."
+                )
+
+            if not sub.plan.modules.get(module):
+                HTTP_403_RESPONSE(
+                    f"Access denied. Module '{module}' is disabled in your organization's subscription plan."
+                )
 
         slugs = get_permission_slugs(user)
 

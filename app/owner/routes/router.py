@@ -13,6 +13,8 @@ from app.owner.routes.inventory_api import router as inventory_router
 from app.owner.routes.prescription_api import router as prescription_router
 from app.owner.routes.followup_api import router as followup_router
 from app.owner.routes.sales_api import router as sales_router
+from app.owner.routes.subscription_api import router as subscription_router
+from app.owner.routes.payment_api import router as payment_router
 from app.auth.controller.user_auth import get_current_user
 
 # Layer 1: only owner/staff roles can access any /owner/* route
@@ -35,6 +37,8 @@ router.include_router(inventory_router)
 router.include_router(prescription_router)
 router.include_router(followup_router)
 router.include_router(sales_router)
+router.include_router(subscription_router)
+router.include_router(payment_router)
 
 
 
