@@ -85,7 +85,7 @@ def create_plan(db: Session, plan: PlanCreate):
                             product_id=stripe_product_id,
                             amount_in_cents=amount_cents,
                             currency="usd",
-                            interval=period.value,
+                            interval=period.stripe_interval,
                             metadata={"plan_name": plan.name, "period": period.value},
                         )
                     )
@@ -197,7 +197,7 @@ def update_plan(db: Session, plan_id: str, plan: PlanUpdate):
                                 product_id=db_plan.stripe_product_id,
                                 amount_in_cents=amount_cents,
                                 currency="usd",
-                                interval=period.value,
+                                interval=period.stripe_interval,
                                 metadata={"plan_name": db_plan.name, "period": period.value},
                             )
                         )

@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     REDIS_URL: str
+    FRONT_END_URL: str
+    APP_URL: str 
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore"
+    ) 
 
 class StripeSettings(BaseSettings):
     STRIPE_SECRET_KEY: str

@@ -23,6 +23,9 @@ class Subscription(Base):
     id: Mapped[str] = mapped_column(
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
+    subscription_reference: Mapped[str] = mapped_column(
+        String(50), nullable=False, unique=True
+    )
     plan_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("plans.id", ondelete="RESTRICT"), nullable=False, index=True
     )

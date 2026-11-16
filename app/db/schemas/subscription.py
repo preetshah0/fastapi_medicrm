@@ -38,6 +38,7 @@ class SubscriptionUpdate(BaseModel):
 
 class SubscriptionResponse(SubscriptionBase):
     id: str
+    subscription_reference: str
     organization_id: str
     end_date: Optional[datetime] = None
     created_at: datetime

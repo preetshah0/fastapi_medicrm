@@ -14,7 +14,6 @@ from app.admin.controller.plan import (
     get_plan,
     get_plans,
     update_plan,
-    update_plan_status,
     toggle_plan_status,
     delete_plan,
 )

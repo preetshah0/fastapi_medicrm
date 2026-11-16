@@ -23,6 +23,7 @@ def upgrade() -> None:
     op.create_table(
         'subscriptions',
         sa.Column('id', sa.String(36), primary_key=True, default=uuid.uuid4),
+        sa.Column('subscription_reference', sa.String(50), nullable=False, unique=True),
         sa.Column('plan_id', sa.String(36), sa.ForeignKey('plans.id', ondelete='RESTRICT'), nullable=False),
         sa.Column('organization_id', sa.String(36), sa.ForeignKey('organizations.id', ondelete='CASCADE'), nullable=False),
         sa.Column('start_date', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),

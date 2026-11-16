@@ -4,13 +4,15 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 from app.Enum.PaymentStatus import PaymentStatus
+from app.Enum.PaymentMode import PaymentMode
+from app.Enum.PaymentProvider import PaymentProvider
 
 
 class PaymentBase(BaseModel):
     amount: Decimal
     currency: str = "INR"
-    payment_mode: str = "gateway"
-    provider: str = "stripe"
+    payment_mode: PaymentMode = PaymentMode.GATEWAY
+    provider: PaymentProvider = PaymentProvider.STRIPE
     provider_payment_id: Optional[str] = None
     provider_invoice_id: Optional[str] = None
     status: PaymentStatus = PaymentStatus.PENDING

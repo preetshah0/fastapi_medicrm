@@ -1,4 +1,5 @@
 import stripe
+import time
 from app.core.config import stripe_settings
 from app.db.schemas.stripe import (
     StripeCustomerCreate,
@@ -65,6 +66,18 @@ def update_price(price_id: str, payload: StripePriceUpdate):
                 params["metadata"] = value
     return stripe.Price.modify(price_id, **params)
 
+def get_product(product_id: str):
+    return stripe.Product.retrieve(product_id)
+
+
+def get_price(price_id: str):
+    return stripe.Price.retrieve(price_id)
+
+
+def list_prices_by_product(product_id: str, active: bool = True):
+    return stripe.Price.list(product=product_id, active=active)
+
+
 def create_customer(payload: StripeCustomerCreate):
     """Create a Stripe Customer for an organization."""
     return stripe.Customer.create(
@@ -81,16 +94,24 @@ def get_customer(customer_id: str):
 
 
 def create_checkout_session(payload: StripeCheckoutSessionCreate):
-    """Create a Stripe Checkout Session for subscription purchase."""
+    """Create a Stripe Checkout Session for subscription purchase with a default 30-min expiry."""
+    expires_at = int(time.time()) + (30 * 60)
     return stripe.checkout.Session.create(
         customer=payload.customer_id,
         payment_method_types=["card"],
         line_items=[{"price": payload.price_id, "quantity": 1}],
         mode="subscription",
+        expires_at=expires_at,
         success_url=payload.success_url,
         cancel_url=payload.cancel_url,
         metadata=payload.metadata or {},
+        subscription_data={"metadata": payload.metadata or {}},
     )
+
+
+def expire_checkout_session(session_id: str):
+    """Expire an active, unpaid Stripe Checkout Session."""
+    return stripe.checkout.Session.expire(session_id)
 
 
 def retrieve_checkout_session(session_id: str):
@@ -111,6 +132,14 @@ def cancel_subscription(payload: StripeCancelSubscriptionRequest):
             cancel_at_period_end=True,
         )
     return stripe.Subscription.delete(payload.subscription_id)
+
+
+def set_subscription_cancel_at_period_end(subscription_id: str, cancel_at_period_end: bool):
+    """Toggle auto-renew for a subscription in Stripe."""
+    return stripe.Subscription.modify(
+        subscription_id,
+        cancel_at_period_end=cancel_at_period_end,
+    )
 
 
 def create_billing_portal_session(payload: StripePortalCreate):

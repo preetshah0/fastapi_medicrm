@@ -8,6 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
 from app.Enum.PaymentStatus import PaymentStatus
+from app.Enum.PaymentMode import PaymentMode
+from app.Enum.PaymentProvider import PaymentProvider
 
 if TYPE_CHECKING:
     from app.model.Organization import Organization
@@ -31,10 +33,10 @@ class Payment(Base):
         String(3), nullable=False, default="INR", server_default=text("'INR'")
     )
     payment_mode: Mapped[str] = mapped_column(
-        String(50), nullable=False, default="gateway", server_default=text("'gateway'")
+        String(50), nullable=False, default=PaymentMode.GATEWAY.value, server_default=text(f"'{PaymentMode.GATEWAY.value}'")
     )
     provider: Mapped[str] = mapped_column(
-        String(50), nullable=False, default="stripe", server_default=text("'stripe'")
+        String(50), nullable=False, default=PaymentProvider.STRIPE.value, server_default=text(f"'{PaymentProvider.STRIPE.value}'")
     )
     provider_payment_id: Mapped[str | None] = mapped_column(
         String(255), nullable=True, unique=True, index=True
