@@ -1,6 +1,6 @@
 from enum import Enum
 
-class SubscriptionStatus(Enum):
+class SubscriptionStatus(str, Enum):
     PENDING = "pending"
     ACTIVE = "active"
     INACTIVE = "inactive"

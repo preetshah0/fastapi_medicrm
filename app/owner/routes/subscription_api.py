@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from typing import Optional
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.schemas import APIResponse
@@ -129,7 +130,7 @@ def toggle_auto_renew_route(
 
 @router.post("/portal", response_model=APIResponse[StripePortalResponse])
 def customer_portal_route(
-    payload: StripePortalRequest = None,
+    payload: Optional[StripePortalRequest] = Body(default=None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

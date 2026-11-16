@@ -78,20 +78,23 @@ def validate_plan(db: Session, plan_id: str, billing_period: BillingPeriod):
         return False
     return price_id, plan
 
-def ensure_customer(db: Session, organization:Organization, owner: User):
-    customer = get_customer(organization.stripe_customer_id)
+def ensure_customer(db: Session, organization: Organization, owner: User):
+    customer = get_customer(organization.stripe_customer_id) if organization.stripe_customer_id else None
     if not customer:
-            customer_email = organization.organization_email or owner.email
-            payload = StripeCustomerCreate(
-                name=organization.organization_name,
-                email=customer_email,
-                metadata={"organization_id": str(organization.id), "owner_id": str(owner.id)},
-            )
-            customer = create_customer(payload)
-            organization.stripe_customer_id = customer.id
+        customer_email = organization.organization_email or owner.email
+        payload = StripeCustomerCreate(
+            name=organization.organization_name,
+            email=customer_email,
+            metadata={"organization_id": str(organization.id), "owner_id": str(owner.id)},
+        )
+        try:
+            created = create_customer(payload)
+            organization.stripe_customer_id = created.id
             db.commit()
             db.refresh(organization)
-            return customer.id
+            return created.id
+        except Exception:
+            return None
     return organization.stripe_customer_id
         
 
@@ -139,8 +142,8 @@ def checkout_session(db:Session, organization_id: str, payload: StripeCheckoutRe
 
     # URLs directly to frontend with Stripe's dynamic {CHECKOUT_SESSION_ID}
     frontend_base = settings.FRONT_END_URL.rstrip("/")
-    success_url = f"{frontend_base}/checkout/thank-you?session_id={{CHECKOUT_SESSION_ID}}"
-    cancel_url = f"{frontend_base}/checkout/cancel"
+    success_url = payload.success_url or f"{frontend_base}/checkout/thank-you?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = payload.cancel_url or f"{frontend_base}/checkout/cancel"
 
     metadata = {
         "organization_id": str(organization.id),

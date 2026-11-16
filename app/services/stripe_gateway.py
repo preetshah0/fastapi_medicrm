@@ -89,7 +89,15 @@ def create_customer(payload: StripeCustomerCreate):
 
 def get_customer(customer_id: str):
     """Retrieve a Stripe Customer by ID."""
-    return stripe.Customer.retrieve(customer_id)
+    if not customer_id:
+        return None
+    try:
+        customer = stripe.Customer.retrieve(customer_id)
+        if getattr(customer, "deleted", False):
+            return None
+        return customer
+    except Exception:
+        return None
 
 
 

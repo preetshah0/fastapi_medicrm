@@ -72,18 +72,22 @@ def handle_checkout_session_completed(session: dict, db: Session):
     db.add(subscription)
     db.flush()
 
+    session_payment_status = session.get("payment_status")
+    is_paid = session_payment_status == "paid"
+    payment_status = PaymentStatus.PAID.value if is_paid else PaymentStatus.PROCESSING.value
+    paid_at = datetime.now() if is_paid else None
+
     payment = Payment(
         organization_id=organization_id,
         subscription_id=subscription.id,
-        subscription_reference=sub_ref,
         amount=amount_total,
         currency=currency,
         payment_mode=PaymentMode.GATEWAY.value,
         provider=PaymentProvider.STRIPE.value,
         provider_payment_id=session_id,
         provider_invoice_id=session.get("invoice"),
-        paid_at=datetime.now(),
-        status=PaymentStatus.PAID.value,
+        paid_at=paid_at,
+        status=payment_status,
         reference_no=generate_payment_reference(),
         notes=f"Initial subscription payment for {plan.name if plan else 'Plan'}",
     )
@@ -116,6 +120,10 @@ def handle_invoice_payment_succeeded(invoice: dict, db: Session):
 
     existing_payment = db.query(Payment).filter(Payment.provider_invoice_id == invoice_id).first()
     if existing_payment:
+        if existing_payment.status != PaymentStatus.PAID.value:
+            existing_payment.status = PaymentStatus.PAID.value
+            existing_payment.paid_at = datetime.now()
+            db.commit()
         return existing_payment
 
     amount_paid = Decimal(str(invoice.get("amount_paid", 0) / 100))
@@ -131,7 +139,6 @@ def handle_invoice_payment_succeeded(invoice: dict, db: Session):
     payment = Payment(
         organization_id=subscription.organization_id,
         subscription_id=subscription.id,
-        subscription_reference=subscription.subscription_reference,
         amount=amount_paid,
         currency=currency,
         payment_mode=PaymentMode.GATEWAY.value,
@@ -168,7 +175,6 @@ def handle_invoice_payment_failed(invoice: dict, db: Session):
     payment = Payment(
         organization_id=subscription.organization_id,
         subscription_id=subscription.id,
-        subscription_reference=subscription.subscription_reference,
         amount=amount_due,
         currency=currency,
         payment_mode=PaymentMode.GATEWAY.value,
@@ -241,3 +247,23 @@ def handle_customer_subscription_updated(stripe_sub: dict, db: Session):
     db.commit()
     db.refresh(subscription)
     return subscription
+
+
+def handle_payment_intent_processing(payment_intent: dict, db: Session):
+    pi_id = payment_intent.get("id")
+    if not pi_id:
+        return False
+
+    invoice_id = payment_intent.get("invoice")
+    payment = (
+        db.query(Payment)
+        .filter(
+            (Payment.provider_payment_id == pi_id) | (Payment.provider_invoice_id == invoice_id)
+        )
+        .first()
+    )
+    if payment and payment.status != PaymentStatus.PAID.value:
+        payment.status = PaymentStatus.PROCESSING.value
+        db.commit()
+        return payment
+    return False

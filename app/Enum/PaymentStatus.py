@@ -2,16 +2,16 @@ from enum import Enum
 
 class PaymentStatus(str, Enum):
     PENDING = "pending"
-    SUCCESS = "success"
+    PROCESSING = "processing"
+    PAID = "paid"
     FAILED = "failed"
-    REFUNDED = "refunded"
 
     @property
     def label(self) -> str:
         labels = {
             self.PENDING: "Pending",
-            self.SUCCESS: "Success",
+            self.PROCESSING: "Processing",
+            self.PAID: "Paid",
             self.FAILED: "Failed",
-            self.REFUNDED: "Refunded",
         }
         return labels.get(self, self.value)
