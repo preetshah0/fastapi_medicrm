@@ -17,3 +17,7 @@ fastapi-saas-starter-main
 
 # IDE / Editor
 .vscode/
+
+# Media Uploads
+uploads/*
+!uploads/.gitkeep

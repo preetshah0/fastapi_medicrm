@@ -1,5 +1,4 @@
 from datetime import datetime
-from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -9,7 +8,7 @@ from app.Enum.PaymentProvider import PaymentProvider
 
 
 class PaymentBase(BaseModel):
-    amount: Decimal
+    amount: float
     currency: str = "INR"
     payment_mode: PaymentMode = PaymentMode.GATEWAY
     provider: PaymentProvider = PaymentProvider.STRIPE
@@ -41,5 +40,41 @@ class PaymentResponse(PaymentBase):
     reference_no: str
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminPaymentResponse(PaymentResponse):
+    organization_name: Optional[str] = None
+    organization_ref: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminPaymentSummaryResponse(BaseModel):
+    total_revenue: float
+    currency: str
+    total_count: int
+    paid_count: int
+    failed_count: int
+    pending_count: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminPaymentResponse(PaymentResponse):
+    organization_name: Optional[str] = None
+    organization_ref: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminPaymentSummaryResponse(BaseModel):
+    total_revenue: float
+    currency: str
+    total_count: int
+    paid_count: int
+    failed_count: int
+    pending_count: int
 
     model_config = ConfigDict(from_attributes=True)
