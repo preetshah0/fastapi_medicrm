@@ -1,0 +1,14 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv/
+.env
+.git
+.gitignore
+.vscode
+fastapi-saas-starter-main/
+uploads/*
+!uploads/.gitkeep
